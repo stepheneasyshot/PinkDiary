@@ -34,6 +34,7 @@
 ```bash
 # 编译 Debug APK
 ./gradlew :app:assembleDebug
+# 产物：app/build/outputs/apk/debug/PinkDiary-v1.0.0-debug.apk
 
 # 运行单元测试
 ./gradlew :app:testDebugUnitTest
@@ -43,6 +44,8 @@
 ```
 
 安装到设备：`./gradlew :app:installDebug`，或直接用 Android Studio 运行。
+
+应用版本统一在 `app/build.gradle.kts` 顶部的 `appVersionCode` 与 `appVersionName` 中维护。APK 基础命名为 `PinkDiary-v{versionName}-{buildType}.apk`；未签名的 Release 包由 Android Gradle Plugin 自动追加 `-unsigned`。
 
 ## 测试
 

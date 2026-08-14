@@ -4,6 +4,13 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+val appVersionCode = 1
+val appVersionName = "1.0.0"
+
+base {
+    archivesName.set("PinkDiary-v$appVersionName")
+}
+
 android {
     namespace = "com.stephen.pinkdiary"
     compileSdk {
@@ -14,8 +21,8 @@ android {
         applicationId = "com.stephen.pinkdiary"
         minSdk = 33
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
