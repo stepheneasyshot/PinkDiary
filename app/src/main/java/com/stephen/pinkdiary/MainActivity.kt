@@ -4,10 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.stephen.pinkdiary.ui.home.HomeScreen
-import com.stephen.pinkdiary.ui.home.HomeViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stephen.pinkdiary.ui.navigation.PinkdiaryNavHost
+import com.stephen.pinkdiary.ui.onboarding.OnboardingScreen
 import com.stephen.pinkdiary.ui.theme.PinkdiaryTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,8 +19,19 @@ class MainActivity : ComponentActivity() {
         val app = application as PinkdiaryApp
         setContent {
             PinkdiaryTheme {
-                val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory(app))
-                HomeScreen(viewModel = viewModel)
+                val onboardingDone by app.userSettingsRepository.onboardingCompleted
+                    .collectAsStateWithLifecycle(initialValue = null as Boolean?)
+                val scope = rememberCoroutineScope()
+
+                when {
+                    onboardingDone == false -> OnboardingScreen(
+                        onFinished = {
+                            scope.launch { app.userSettingsRepository.setOnboardingCompleted() }
+                        }
+                    )
+                    onboardingDone == true -> PinkdiaryNavHost(app)
+                    else -> Unit // 读取中，短暂空白
+                }
             }
         }
     }

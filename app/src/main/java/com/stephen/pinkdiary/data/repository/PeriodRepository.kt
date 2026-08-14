@@ -55,4 +55,8 @@ class PeriodRepository(private val dao: PeriodDao) {
     }
 
     suspend fun delete(record: PeriodRecord) = dao.delete(record)
+
+    suspend fun deleteById(id: Long) {
+        dao.getById(id)?.let { dao.delete(it) }
+    }
 }

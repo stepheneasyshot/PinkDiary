@@ -1,114 +1,131 @@
 package com.stephen.pinkdiary.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stephen.pinkdiary.data.prediction.PeriodLogic
 import com.stephen.pinkdiary.ui.calendar.CalendarLegend
-import com.stephen.pinkdiary.ui.calendar.CalendarMonth
+import com.stephen.pinkdiary.ui.calendar.CalendarPager
+import com.stephen.pinkdiary.ui.calendar.WeekdayHeader
 import com.stephen.pinkdiary.ui.components.StatusCard
+import com.stephen.pinkdiary.ui.record.RecordSheet
+import kotlinx.coroutines.launch
 import java.time.YearMonth
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val showSheet by viewModel.showSheet.collectAsStateWithLifecycle()
+    val userMessage by viewModel.userMessage.collectAsStateWithLifecycle()
 
-    Scaffold { innerPadding ->
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(userMessage) {
+        userMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.consumeMessage()
+        }
+    }
+
+    val selectedDate = state.selectedDate ?: state.today
+    val coveringRecord = PeriodLogic.coveringRecord(state.records, selectedDate, state.today)
+    val ongoingRecord = PeriodLogic.ongoingRecord(state.records)
+
+    // 月份翻页：初始定位到本月，支持左右手势滑动
+    val initialMonth = remember { YearMonth.now() }
+    val basePage = 1_000_000
+    val pagerState = rememberPagerState(initialPage = basePage) { Int.MAX_VALUE }
+    val scope = rememberCoroutineScope()
+    val currentMonth = initialMonth.plusMonths((pagerState.currentPage - basePage).toLong())
+
+    Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             StatusCard(state)
-            MonthHeader(
-                month = state.displayedMonth,
-                onPrevious = viewModel::previousMonth,
-                onNext = viewModel::nextMonth
-            )
-            CalendarMonth(
-                month = state.displayedMonth,
+            MonthTitle(currentMonth)
+            WeekdayHeader()
+            CalendarPager(
+                initialMonth = initialMonth,
+                pagerState = pagerState,
+                basePage = basePage,
                 today = state.today,
-                periodDates = state.periodDates,
+                solidPeriodDates = state.solidPeriodDates,
+                softPeriodDates = state.softPeriodDates,
                 predictedDates = state.predictedDates,
                 selectedDate = state.selectedDate,
-                onDateSelected = viewModel::selectDate
+                onDateSelected = viewModel::onDateSelected
             )
-            CalendarLegend()
-            SelectedDatePanel(state)
+            CalendarLegend(
+                onJumpToToday = {
+                    scope.launch { pagerState.animateScrollToPage(basePage) }
+                }
+            )
+            MarkingGuide(
+                isColdStart = state.prediction == null,
+                hasOngoing = ongoingRecord != null
+            )
         }
-    }
-}
-
-@Composable
-private fun MonthHeader(
-    month: YearMonth,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit
-) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TextButton(onClick = onPrevious) {
-            Text("‹", style = MaterialTheme.typography.headlineSmall)
-        }
-        Text(
-            text = "${month.year}年${month.monthValue}月",
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
-        TextButton(onClick = onNext) {
-            Text("›", style = MaterialTheme.typography.headlineSmall)
-        }
+    }
+
+    if (showSheet) {
+        RecordSheet(
+            date = selectedDate,
+            coveringRecord = coveringRecord,
+            isFutureDate = selectedDate.isAfter(state.today),
+            onDismiss = viewModel::dismissSheet,
+            onMarkStart = { viewModel.markPeriodStart(selectedDate) },
+            onMarkEnd = { coveringRecord?.let { viewModel.markPeriodEnd(it.id, selectedDate) } },
+            onDelete = { coveringRecord?.let { viewModel.deleteRecord(it.id) } }
+        )
     }
 }
 
 @Composable
-private fun SelectedDatePanel(state: HomeUiState) {
-    val date = state.selectedDate ?: state.today
-    val label = when {
-        date in state.periodDates -> "经期日"
-        date in state.predictedDates -> "预测经期日"
-        else -> "无标记"
+private fun MarkingGuide(isColdStart: Boolean, hasOngoing: Boolean) {
+    val text = when {
+        isColdStart -> "点击日历中的日期，标记你的经期开始"
+        hasOngoing -> "点击日历中的日期，选择经期结束的时间"
+        else -> "点击日期即可记录或修改经期"
     }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${date.year}年${date.monthValue}月${date.dayOfMonth}日",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
+@Composable
+private fun MonthTitle(month: YearMonth) {
+    Text(
+        text = "${month.year}年${month.monthValue}月",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold
+    )
 }

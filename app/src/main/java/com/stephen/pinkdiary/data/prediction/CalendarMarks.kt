@@ -9,18 +9,39 @@ import java.time.LocalDate
 object CalendarMarks {
 
     /**
-     * 已记录经期日集合：每条记录从开始日到结束日（含首尾）；
-     * 结束日为 null（进行中）时算到 [today]。
+     * 实心标记日：已结束经期的全程（含首尾）+ 进行中经期的开始日。
      */
-    fun recordedPeriodDates(records: List<PeriodRecord>, today: LocalDate): Set<LocalDate> {
+    fun solidPeriodDates(records: List<PeriodRecord>): Set<LocalDate> {
         val result = mutableSetOf<LocalDate>()
         records.forEach { r ->
             val start = LocalDate.ofEpochDay(r.startDateEpochDay)
-            val end = r.endDateEpochDay?.let { LocalDate.ofEpochDay(it) } ?: today
-            var d = start
-            while (!d.isAfter(end)) {
-                result.add(d)
-                d = d.plusDays(1)
+            val end = r.endDateEpochDay?.let { LocalDate.ofEpochDay(it) }
+            if (end != null) {
+                var d = start
+                while (!d.isAfter(end)) {
+                    result.add(d)
+                    d = d.plusDays(1)
+                }
+            } else {
+                result.add(start) // 进行中：仅开始日实心
+            }
+        }
+        return result
+    }
+
+    /**
+     * 温和标记日：进行中经期从开始日次日到今天（不含开始日）。
+     */
+    fun softPeriodDates(records: List<PeriodRecord>, today: LocalDate): Set<LocalDate> {
+        val result = mutableSetOf<LocalDate>()
+        records.forEach { r ->
+            if (r.endDateEpochDay == null) {
+                val start = LocalDate.ofEpochDay(r.startDateEpochDay)
+                var d = start.plusDays(1)
+                while (!d.isAfter(today)) {
+                    result.add(d)
+                    d = d.plusDays(1)
+                }
             }
         }
         return result

@@ -17,10 +17,9 @@ class CalendarMarksTest {
     )
 
     @Test
-    fun `recorded dates span start to end inclusive`() {
-        val dates = CalendarMarks.recordedPeriodDates(
-            listOf(record(LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3))),
-            LocalDate.of(2026, 8, 10)
+    fun `completed period is solid over its full range`() {
+        val dates = CalendarMarks.solidPeriodDates(
+            listOf(record(LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3)))
         )
         assertEquals(
             setOf(
@@ -33,14 +32,21 @@ class CalendarMarksTest {
     }
 
     @Test
-    fun `ongoing record spans to today`() {
-        val dates = CalendarMarks.recordedPeriodDates(
+    fun `ongoing period marks only start day solid`() {
+        val dates = CalendarMarks.solidPeriodDates(
+            listOf(record(LocalDate.of(2026, 8, 1)))
+        )
+        assertEquals(setOf(LocalDate.of(2026, 8, 1)), dates)
+    }
+
+    @Test
+    fun `ongoing period soft days span day after start to today`() {
+        val dates = CalendarMarks.softPeriodDates(
             listOf(record(LocalDate.of(2026, 8, 1))),
             LocalDate.of(2026, 8, 4)
         )
         assertEquals(
             setOf(
-                LocalDate.of(2026, 8, 1),
                 LocalDate.of(2026, 8, 2),
                 LocalDate.of(2026, 8, 3),
                 LocalDate.of(2026, 8, 4)
@@ -50,13 +56,18 @@ class CalendarMarksTest {
     }
 
     @Test
-    fun `multiple records are merged into one set`() {
-        val dates = CalendarMarks.recordedPeriodDates(
+    fun `ongoing started today has no soft days`() {
+        val today = LocalDate.of(2026, 8, 4)
+        assertTrue(CalendarMarks.softPeriodDates(listOf(record(today)), today).isEmpty())
+    }
+
+    @Test
+    fun `multiple records are merged`() {
+        val dates = CalendarMarks.solidPeriodDates(
             listOf(
                 record(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 2)),
                 record(LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 2))
-            ),
-            LocalDate.of(2026, 8, 10)
+            )
         )
         assertEquals(4, dates.size)
         assertTrue(LocalDate.of(2026, 7, 1) in dates)

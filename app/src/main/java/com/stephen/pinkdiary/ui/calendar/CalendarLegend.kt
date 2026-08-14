@@ -5,29 +5,52 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.stephen.pinkdiary.ui.theme.PeriodPink
 import com.stephen.pinkdiary.ui.theme.PeriodPinkLight
 
 @Composable
-fun CalendarLegend(modifier: Modifier = Modifier) {
+fun CalendarLegend(
+    onJumpToToday: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         LegendItem(fill = PeriodPink, label = "经期")
+        Spacer(Modifier.width(16.dp))
         LegendItem(border = PeriodPinkLight, label = "预测经期")
-        LegendItem(border = MaterialTheme.colorScheme.primary, label = "今天")
+        Spacer(Modifier.weight(1f))
+        Surface(
+            onClick = onJumpToToday,
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = "今",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 
@@ -43,14 +66,14 @@ private fun LegendItem(
     ) {
         Box(
             modifier = Modifier
-                .size(14.dp)
+                .size(18.dp)
                 .clip(CircleShape)
                 .background(fill ?: Color.Transparent)
                 .then(if (border != null) Modifier.border(1.5.dp, border, CircleShape) else Modifier)
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
