@@ -4,7 +4,16 @@
 
 ## 项目概览
 
-Pinkdiary 是一款记录与预测女性经期的 Android 应用。单 Activity + Jetpack Compose + MVVM，数据用 Room 持久化、设置用 DataStore，预测算法为纯函数（无 Android 依赖、可单测）。
+Pinkdiary 是一款记录与预测女性经期的 Android 应用。单 Activity + Jetpack Compose + 严格 MVI，数据用 Room 持久化、设置用 DataStore，预测算法为纯函数（无 Android 依赖、可单测）。
+
+## Harness 强制工作流
+
+以下约束适用于每一次代码修改，不得跳过：
+
+1. **改代码前必读**：先完整阅读 [`docs/COMPOSE_MVI_ARCHITECTURE.md`](docs/COMPOSE_MVI_ARCHITECTURE.md)，再开始设计或编辑代码。
+2. **严格 MVI**：有业务状态的功能必须使用单一 `UiState`、密封 `Intent`、密封 `Effect` 和唯一 `onIntent` 入口；Composable 不得直接读写 Repository/DAO/DataStore，不得绕过 Intent 调用 ViewModel 业务方法。
+3. **改代码后检查文档**：逐项检查 `README.md`、`docs/FEATURE_DESIGN.md`、`docs/PERIOD_PREDICTION_RULES.md`、`docs/COMPOSE_MVI_ARCHITECTURE.md` 与本文件是否受影响；需要时必须在同一变更中刷新。
+4. **交付必须声明**：最终交付说明必须写明测试结果与“文档检查结果”（列出已更新文档，或说明无需更新及原因）。
 
 ## 常用命令
 
@@ -30,11 +39,13 @@ Pinkdiary 是一款记录与预测女性经期的 Android 应用。单 Activity 
 ## 架构约定
 
 ```
-UI (Compose) ──► ViewModel (StateFlow) ──► Repository ──► Room / DataStore
-                                                              └─ CyclePredictor / CalendarMarks / PeriodLogic（纯函数）
+Compose Route ──► Intent ──► MVI ViewModel ──► Repository ──► Room / DataStore
+       ▲                       │                                  └─ 纯函数层
+       └──── UiState / Effect ─┘
 ```
 
-- **MVVM**：View 只消费 `StateFlow`，动作通过 ViewModel 方法下发；副作用用 `viewModelScope.launch`
+- **严格 MVI**：每个有状态功能只有一个 `StateFlow<UiState>`、一个 `onIntent(Intent)` 入口和至多一个一次性 `Effect` 流
+- **Route / Screen 分层**：Route 收集状态与 Effect；Screen 只接收不可变状态和 `onIntent`
 - **手动 DI**：`PinkdiaryApp` 持有 `AppDatabase`、`PeriodRepository`、`UserSettingsRepository`
 - **纯函数层**（`data/prediction/`）不依赖 Android / IO，新增逻辑时优先放这里并配单测
 - **日期只精确到天**：用 `java.time.LocalDate`；存库用 `epochDay: Long`，避免 `Date`/`Calendar`
@@ -49,25 +60,27 @@ app/src/main/java/com/stephen/pinkdiary/
 │   ├── local/                 Room：PeriodRecord、PeriodDao、AppDatabase
 │   ├── model/                 UserSettings
 │   ├── prediction/            纯函数：CyclePredictor、CalendarMarks、PeriodLogic
-│   └── repository/            PeriodRepository、UserSettingsRepository
+│   └── repository/            Repository 接口 + Room/DataStore 默认实现
 └── ui/
+    ├── app/                   应用入口 MVI（引导分流）
+    ├── mvi/                   通用 MviViewModel 状态容器
     ├── navigation/            底部导航（PinkdiaryNavHost、Routes）
-    ├── home/                  经期主页（HomeScreen、HomeViewModel）
+    ├── home/                  经期主页（Contract、Screen、ViewModel）
     ├── calendar/              日历（Pager/Month/DayCell/Legend/MacaronColors）
     ├── record/                记录弹窗（RecordSheet）
-    ├── settings/              设置页（Screen、ViewModel）
+    ├── settings/              设置页（Contract、Screen、ViewModel）
     ├── knowledge/             科普占位页
     ├── onboarding/            首次启动引导
     ├── components/            StatusCard
     └── theme/                 Color、Theme、Type
 
-app/src/test/java/.../         单元测试（纯逻辑）
+app/src/test/java/.../         纯逻辑与 MVI ViewModel 单元测试
 docs/                          方案与规则文档
 ```
 
 ## 注意事项（重要）
 
-1. **UI 显示字符串必须写在资源文件**（强制）：所有用户可见文案——Compose `Text`、按钮、`contentDescription`、Snackbar/Toast、校验错误提示等——必须写入 `app/src/main/res/values/strings.xml`，用 `stringResource(R.string.xxx)` 引用，禁止在 Kotlin 中硬编码字符串字面量。带占位符的文案用 `%1$d` / `%2$s` 等格式化，调用 `stringResource(R.string.xxx, arg1, arg2)` 传参；星期等成组文案用 `<string-array>`。内部标识（Room 表名/数据库名、DataStore key、导航 route、preference key 等）不属于 UI 文案，**不要**放进 strings.xml。非 Compose 层（ViewModel/Repository）需要用户提示时，用 `Application.getString()` 解析，或抛类型化异常由 UI 层映射为字符串资源（见 `PeriodEndBeforeStartException` → `error_end_before_start` 的现有写法）。
+1. **UI 显示字符串必须写在资源文件**（强制）：所有用户可见文案——Compose `Text`、按钮、`contentDescription`、Snackbar/Toast、校验错误提示等——必须写入 `app/src/main/res/values/strings.xml`，用 `stringResource(R.string.xxx)` 引用，禁止在 Kotlin 中硬编码字符串字面量。带占位符的文案用 `%1$d` / `%2$s` 等格式化，调用 `stringResource(R.string.xxx, arg1, arg2)` 传参；星期等成组文案用 `<string-array>`。内部标识（Room 表名/数据库名、DataStore key、导航 route、preference key 等）不属于 UI 文案，**不要**放进 strings.xml。ViewModel 不解析文案；需要用户提示时发出携带字符串资源 id 或类型化错误的 Effect，由 Route 解析（见 `HomeEffect.ShowMessage`）。
 
 2. **增量编译可能误报**：工作目录存在大小写不同的符号链接（`Pinkdiary` → `PinkDiary`），会破坏 Gradle 文件监听，偶发「Unresolved reference」或符号解析错误的假阳性。**遇到奇怪的编译错误时，先 `./gradlew clean` 再构建。**
 

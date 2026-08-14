@@ -19,12 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stephen.pinkdiary.R
-import com.stephen.pinkdiary.data.prediction.PeriodLogic
 import com.stephen.pinkdiary.ui.calendar.CalendarLegend
 import com.stephen.pinkdiary.ui.calendar.CalendarPager
 import com.stephen.pinkdiary.ui.calendar.WeekdayHeader
@@ -34,23 +34,36 @@ import kotlinx.coroutines.launch
 import java.time.YearMonth
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeRoute(viewModel: HomeViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val showSheet by viewModel.showSheet.collectAsStateWithLifecycle()
-    val userMessage by viewModel.userMessage.collectAsStateWithLifecycle()
-
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(userMessage) {
-        userMessage?.let {
-            snackbarHostState.showSnackbar(it)
-            viewModel.consumeMessage()
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is HomeEffect.ShowMessage -> snackbarHostState.showSnackbar(
+                    context.getString(effect.messageRes)
+                )
+            }
         }
     }
 
-    val selectedDate = state.selectedDate ?: state.today
-    val coveringRecord = PeriodLogic.coveringRecord(state.records, selectedDate, state.today)
-    val ongoingRecord = PeriodLogic.ongoingRecord(state.records)
+    HomeScreen(
+        state = state,
+        snackbarHostState = snackbarHostState,
+        onIntent = viewModel::onIntent
+    )
+}
 
+@Composable
+fun HomeScreen(
+    state: HomeUiState,
+    snackbarHostState: SnackbarHostState,
+    onIntent: (HomeIntent) -> Unit
+) {
+
+    val selectedDate = state.selectedDate ?: state.today
     // 月份翻页：初始定位到本月，支持左右手势滑动
     val initialMonth = remember { YearMonth.now() }
     val basePage = 1_000_000
@@ -78,7 +91,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 softPeriodDates = state.softPeriodDates,
                 predictedDates = state.predictedDates,
                 selectedDate = state.selectedDate,
-                onDateSelected = viewModel::onDateSelected
+                onDateSelected = { onIntent(HomeIntent.DateSelected(it)) }
             )
             CalendarLegend(
                 onJumpToToday = {
@@ -87,7 +100,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             )
             MarkingGuide(
                 isColdStart = state.prediction == null,
-                hasOngoing = ongoingRecord != null
+                hasOngoing = state.hasOngoingRecord
             )
         }
         SnackbarHost(
@@ -96,15 +109,15 @@ fun HomeScreen(viewModel: HomeViewModel) {
         )
     }
 
-    if (showSheet) {
+    if (state.isRecordSheetVisible) {
         RecordSheet(
             date = selectedDate,
-            coveringRecord = coveringRecord,
+            coveringRecord = state.selectedRecord,
             isFutureDate = selectedDate.isAfter(state.today),
-            onDismiss = viewModel::dismissSheet,
-            onMarkStart = { viewModel.markPeriodStart(selectedDate) },
-            onMarkEnd = { coveringRecord?.let { viewModel.markPeriodEnd(it.id, selectedDate) } },
-            onDelete = { coveringRecord?.let { viewModel.deleteRecord(it.id) } }
+            onDismiss = { onIntent(HomeIntent.RecordSheetDismissed) },
+            onMarkStart = { onIntent(HomeIntent.MarkPeriodStartClicked) },
+            onMarkEnd = { onIntent(HomeIntent.MarkPeriodEndClicked) },
+            onDelete = { onIntent(HomeIntent.DeleteRecordClicked) }
         )
     }
 }

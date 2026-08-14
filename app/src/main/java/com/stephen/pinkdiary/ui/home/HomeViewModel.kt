@@ -1,115 +1,111 @@
 package com.stephen.pinkdiary.ui.home
 
-import android.app.Application
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.stephen.pinkdiary.PinkdiaryApp
 import com.stephen.pinkdiary.R
-import com.stephen.pinkdiary.data.local.PeriodRecord
 import com.stephen.pinkdiary.data.prediction.CalendarMarks
-import com.stephen.pinkdiary.data.prediction.CyclePrediction
 import com.stephen.pinkdiary.data.prediction.CyclePredictor
+import com.stephen.pinkdiary.data.prediction.PeriodLogic
 import com.stephen.pinkdiary.data.repository.PeriodEndBeforeStartException
 import com.stephen.pinkdiary.data.repository.PeriodRepository
 import com.stephen.pinkdiary.data.repository.UserSettingsRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import com.stephen.pinkdiary.ui.mvi.MviViewModel
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-data class HomeUiState(
-    val today: LocalDate = LocalDate.now(),
-    val records: List<PeriodRecord> = emptyList(),
-    val solidPeriodDates: Set<LocalDate> = emptySet(),
-    val softPeriodDates: Set<LocalDate> = emptySet(),
-    val predictedDates: Set<LocalDate> = emptySet(),
-    val prediction: CyclePrediction? = null,
-    val selectedDate: LocalDate? = null
-)
-
 class HomeViewModel(
-    private val app: Application,
     private val periodRepository: PeriodRepository,
-    private val settingsRepository: UserSettingsRepository
-) : ViewModel() {
+    settingsRepository: UserSettingsRepository,
+    private val todayProvider: () -> LocalDate = LocalDate::now
+) : MviViewModel<HomeIntent, HomeUiState, HomeEffect>(
+    HomeUiState(today = todayProvider())
+) {
 
-    private val selectedDate = MutableStateFlow<LocalDate?>(null)
-
-    private val _showSheet = MutableStateFlow(false)
-    val showSheet: StateFlow<Boolean> = _showSheet
-
-    private val _userMessage = MutableStateFlow<String?>(null)
-    val userMessage: StateFlow<String?> = _userMessage
-
-    val uiState: StateFlow<HomeUiState> = combine(
-        periodRepository.records,
-        settingsRepository.settings,
-        selectedDate
-    ) { records, settings, selected ->
-        val today = LocalDate.now()
-        val prediction = CyclePredictor.predict(records, settings, today)
-        HomeUiState(
-            today = today,
-            records = records,
-            solidPeriodDates = CalendarMarks.solidPeriodDates(records),
-            softPeriodDates = CalendarMarks.softPeriodDates(records, today),
-            predictedDates = CalendarMarks.predictedPeriodDates(prediction),
-            prediction = prediction,
-            selectedDate = selected
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
-
-    /** 点击日期：选中并弹出记录面板 */
-    fun onDateSelected(date: LocalDate) {
-        selectedDate.value = date
-        _showSheet.value = true
-    }
-
-    fun dismissSheet() {
-        _showSheet.value = false
-    }
-
-    fun consumeMessage() {
-        _userMessage.value = null
-    }
-
-    fun markPeriodStart(date: LocalDate) {
+    init {
         viewModelScope.launch {
-            periodRepository.markPeriodStart(date.toEpochDay())
-            _showSheet.value = false
-        }
-    }
-
-    fun markPeriodEnd(recordId: Long, endDate: LocalDate) {
-        viewModelScope.launch {
-            runCatching { periodRepository.markPeriodEnd(recordId, endDate.toEpochDay()) }
-                .onSuccess { _showSheet.value = false }
-                .onFailure { e ->
-                    _userMessage.value = when (e) {
-                        is PeriodEndBeforeStartException -> app.getString(R.string.error_end_before_start)
-                        else -> app.getString(R.string.error_generic)
-                    }
+            combine(periodRepository.records, settingsRepository.settings) { records, settings ->
+                records to settings
+            }.collect { (records, settings) ->
+                val today = todayProvider()
+                val prediction = CyclePredictor.predict(records, settings, today)
+                reduce { current ->
+                    current.copy(
+                        isLoading = false,
+                        today = today,
+                        records = records,
+                        solidPeriodDates = CalendarMarks.solidPeriodDates(records),
+                        softPeriodDates = CalendarMarks.softPeriodDates(records, today),
+                        predictedDates = CalendarMarks.predictedPeriodDates(prediction),
+                        prediction = prediction,
+                        selectedRecord = current.selectedDate?.let { selected ->
+                            PeriodLogic.coveringRecord(records, selected, today)
+                        },
+                        hasOngoingRecord = PeriodLogic.ongoingRecord(records) != null
+                    )
                 }
+            }
         }
     }
 
-    fun deleteRecord(recordId: Long) {
+    override fun onIntent(intent: HomeIntent) {
+        when (intent) {
+            is HomeIntent.DateSelected -> selectDate(intent.date)
+            HomeIntent.RecordSheetDismissed -> reduce { it.copy(isRecordSheetVisible = false) }
+            HomeIntent.MarkPeriodStartClicked -> markPeriodStart()
+            HomeIntent.MarkPeriodEndClicked -> markPeriodEnd()
+            HomeIntent.DeleteRecordClicked -> deleteRecord()
+        }
+    }
+
+    private fun selectDate(date: LocalDate) {
+        reduce { current ->
+            current.copy(
+                selectedDate = date,
+                selectedRecord = PeriodLogic.coveringRecord(current.records, date, current.today),
+                isRecordSheetVisible = true
+            )
+        }
+    }
+
+    private fun markPeriodStart() {
+        val date = uiState.value.selectedDate ?: return
+        performRecordAction { periodRepository.markPeriodStart(date.toEpochDay()) }
+    }
+
+    private fun markPeriodEnd() {
+        val state = uiState.value
+        val date = state.selectedDate ?: return
+        val record = state.selectedRecord ?: return
+        performRecordAction { periodRepository.markPeriodEnd(record.id, date.toEpochDay()) }
+    }
+
+    private fun deleteRecord() {
+        val record = uiState.value.selectedRecord ?: return
+        performRecordAction { periodRepository.deleteById(record.id) }
+    }
+
+    private fun performRecordAction(action: suspend () -> Unit) {
         viewModelScope.launch {
-            periodRepository.deleteById(recordId)
-            _showSheet.value = false
+            runCatching { action() }
+                .onSuccess { reduce { it.copy(isRecordSheetVisible = false) } }
+                .onFailure { error ->
+                    val messageRes = when (error) {
+                        is PeriodEndBeforeStartException -> R.string.error_end_before_start
+                        else -> R.string.error_generic
+                    }
+                    emitEffect(HomeEffect.ShowMessage(messageRes))
+                }
         }
     }
 
     companion object {
         fun factory(app: PinkdiaryApp): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                HomeViewModel(app, app.periodRepository, app.userSettingsRepository)
+                HomeViewModel(app.periodRepository, app.userSettingsRepository)
             }
         }
     }

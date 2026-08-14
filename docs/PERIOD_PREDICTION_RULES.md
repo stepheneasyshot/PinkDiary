@@ -40,7 +40,7 @@ data class UserSettings(
 )
 ```
 
-## 3. 记录规则（`PeriodRepository`）
+## 3. 记录规则（`PeriodRepository` / `RoomPeriodRepository`）
 
 ### 3.1 标记经期开始 `markPeriodStart(startEpochDay)`
 
@@ -139,4 +139,4 @@ data class UserSettings(
 
 ---
 
-> 本文档对应实现：`data/prediction/CyclePredictor.kt`、`CalendarMarks.kt`、`PeriodLogic.kt`，`data/repository/PeriodRepository.kt`，`ui/components/StatusCard.kt`。规则变更时请同步更新本文档与相应单测。
+> 本文档对应实现：`data/prediction/CyclePredictor.kt`、`CalendarMarks.kt`、`PeriodLogic.kt`，`data/repository/PeriodRepository.kt` 中的 `RoomPeriodRepository`，`ui/components/StatusCard.kt`。规则变更时请同步更新本文档与相应单测。

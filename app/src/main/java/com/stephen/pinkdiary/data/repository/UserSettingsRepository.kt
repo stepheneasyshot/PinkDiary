@@ -13,7 +13,15 @@ import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class UserSettingsRepository(context: Context) {
+interface UserSettingsRepository {
+    val settings: Flow<UserSettings>
+    val onboardingCompleted: Flow<Boolean>
+
+    suspend fun update(settings: UserSettings)
+    suspend fun setOnboardingCompleted()
+}
+
+class DataStoreUserSettingsRepository(context: Context) : UserSettingsRepository {
 
     private val appContext = context.applicationContext
 
@@ -24,7 +32,7 @@ class UserSettingsRepository(context: Context) {
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     }
 
-    val settings: Flow<UserSettings> = appContext.dataStore.data.map { prefs ->
+    override val settings: Flow<UserSettings> = appContext.dataStore.data.map { prefs ->
         val defaults = UserSettings()
         UserSettings(
             defaultCycleLength = prefs[Keys.CYCLE_LENGTH] ?: defaults.defaultCycleLength,
@@ -33,7 +41,7 @@ class UserSettingsRepository(context: Context) {
         )
     }
 
-    suspend fun update(settings: UserSettings) {
+    override suspend fun update(settings: UserSettings) {
         appContext.dataStore.edit { prefs ->
             prefs[Keys.CYCLE_LENGTH] = settings.defaultCycleLength
             prefs[Keys.PERIOD_LENGTH] = settings.defaultPeriodLength
@@ -42,11 +50,11 @@ class UserSettingsRepository(context: Context) {
     }
 
     /** 是否已完成首次启动的引导 */
-    val onboardingCompleted: Flow<Boolean> = appContext.dataStore.data.map { prefs ->
+    override val onboardingCompleted: Flow<Boolean> = appContext.dataStore.data.map { prefs ->
         prefs[Keys.ONBOARDING_COMPLETED] ?: false
     }
 
-    suspend fun setOnboardingCompleted() {
+    override suspend fun setOnboardingCompleted() {
         appContext.dataStore.edit { prefs ->
             prefs[Keys.ONBOARDING_COMPLETED] = true
         }

@@ -18,7 +18,7 @@
 |------|------|
 | 语言 | Kotlin 2.2 |
 | UI | Jetpack Compose + Material 3 |
-| 架构 | 单 Activity + MVVM + Repository（手动 DI） |
+| 架构 | 单 Activity + 严格 MVI + Repository（手动 DI） |
 | 持久化 | Room（经期记录）、DataStore Preferences（设置 / 引导状态） |
 | 导航 | Navigation Compose（底部导航） |
 | 依赖注入 | 手动（`PinkdiaryApp` 容器） |
@@ -44,15 +44,17 @@
 
 ## 测试
 
-单元测试位于 `app/src/test/`，覆盖纯逻辑层：
+单元测试位于 `app/src/test/`，覆盖纯逻辑层与 MVI 状态持有者：
 
 - `CyclePredictorTest` —— 预测算法（冷启动 / 多周期平均 / 异常值过滤 / 进行中）
 - `CalendarMarksTest` —— 日历标记集合
 - `PeriodLogicTest` —— 记录查询
 - `StatusCardTest` —— 状态卡文案
+- `AppViewModelTest` / `HomeViewModelTest` / `SettingsViewModelTest` —— `Intent -> State / Effect`
 
 ## 文档
 
 - [功能方案设计](docs/FEATURE_DESIGN.md)
 - [经期计算与预测规则](docs/PERIOD_PREDICTION_RULES.md)
+- [Compose + MVI 编码架构规范](docs/COMPOSE_MVI_ARCHITECTURE.md)
 - [AI 协作指南](AGENTS.md)

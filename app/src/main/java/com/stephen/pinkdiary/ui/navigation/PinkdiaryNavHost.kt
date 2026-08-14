@@ -23,10 +23,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.stephen.pinkdiary.PinkdiaryApp
 import com.stephen.pinkdiary.R
-import com.stephen.pinkdiary.ui.home.HomeScreen
+import com.stephen.pinkdiary.ui.home.HomeRoute
 import com.stephen.pinkdiary.ui.home.HomeViewModel
 import com.stephen.pinkdiary.ui.knowledge.KnowledgeScreen
-import com.stephen.pinkdiary.ui.settings.SettingsScreen
+import com.stephen.pinkdiary.ui.settings.SettingsRoute
 import com.stephen.pinkdiary.ui.settings.SettingsViewModel
 
 object Routes {
@@ -82,14 +82,14 @@ fun PinkdiaryNavHost(app: PinkdiaryApp) {
         ) {
             composable(Routes.PERIOD) {
                 val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory(app))
-                HomeScreen(viewModel = viewModel)
+                HomeRoute(viewModel = viewModel)
             }
             composable(Routes.KNOWLEDGE) {
                 KnowledgeScreen()
             }
             composable(Routes.SETTINGS) {
                 val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.factory(app))
-                SettingsScreen(viewModel = viewModel)
+                SettingsRoute(viewModel = viewModel)
             }
         }
     }

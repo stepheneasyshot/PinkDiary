@@ -1,7 +1,7 @@
 # Pinkdiary 经期记录与预测 — 功能方案设计
 
 > 版本：v1.0（初期 MVP）
-> 技术栈：Kotlin 2.2 · Jetpack Compose · Material 3 · Room · DataStore · MVVM
+> 技术栈：Kotlin 2.2 · Jetpack Compose · Material 3 · Room · DataStore · 严格 MVI
 
 ---
 
@@ -169,42 +169,43 @@ interface PeriodDao {
 ## 6. 技术架构
 
 ```
-UI (Compose)  ──►  ViewModel (StateFlow)  ──►  Repository  ──►  Data Source
-                                                    │
-                                    ┌───────────────┼───────────────┐
-                                    ▼                               ▼
-                              Room (PeriodDao)              DataStore (Settings)
-                                                              │
-                                            CyclePredictor (纯函数，无副作用)
+Compose Route ──Intent──► MVI ViewModel ──► Repository ──► Data Source
+      ▲                    │                    │
+      └──UiState/Effect────┘                    │
+                                      ┌─────────┼─────────┐
+                                      ▼         ▼         ▼
+                                    Room    DataStore   纯函数层
 ```
 
-- **单 Activity + 多 Composable**，MVVM。
-- ViewModel 通过 `combine(periodsFlow, settingsFlow)` 产出 `HomeUiState`（含日历标记 + 预测结果）。
+- **单 Activity + 多 Composable**，严格 MVI；详细约束见 `COMPOSE_MVI_ARCHITECTURE.md`。
+- 每个有状态功能使用单一 `UiState`、密封 `Intent`、密封 `Effect` 与唯一 `onIntent` 入口。
+- ViewModel 合并 Repository 数据与本地交互状态，产出完整页面 `UiState`（含日历标记、预测结果与弹窗状态）。
 - 预测逻辑独立成 `CyclePredictor`，不依赖 Android，纯 `LocalDate` + `List` 计算，单测覆盖。
-- 页面状态用 `StateFlow` + `collectAsStateWithLifecycle`。
+- Route 用 `collectAsStateWithLifecycle` 收集状态与一次性 Effect；Screen 只做无状态渲染并回传 Intent。
 
 ### 6.1 目录结构（建议）
 
 ```
 app/src/main/java/com/stephen/pinkdiary/
 ├── MainActivity.kt
+├── PinkdiaryApp.kt                     # 手动 DI 容器
 ├── data/
 │   ├── local/
 │   │   ├── PeriodRecord.kt          # Room Entity
 │   │   ├── PeriodDao.kt
-│   │   ├── AppDatabase.kt
-│   │   └── UserSettingsRepository.kt # DataStore 封装
+│   │   └── AppDatabase.kt
 │   ├── model/UserSettings.kt
-│   ├── repository/PeriodRepository.kt
+│   ├── repository/                   # Repository 接口 + Room/DataStore 默认实现
 │   └── prediction/CyclePredictor.kt  # 纯函数
 ├── ui/
-│   ├── home/HomeScreen.kt, HomeViewModel.kt
+│   ├── app/                           # 入口 Contract + ViewModel
+│   ├── mvi/MviViewModel.kt            # 通用单向状态容器
+│   ├── home/                          # Contract + Route/Screen + ViewModel
 │   ├── calendar/CalendarMonth.kt, CalendarDayCell.kt, CalendarLegend.kt
 │   ├── record/RecordSheet.kt
-│   ├── settings/SettingsScreen.kt, SettingsViewModel.kt
+│   ├── settings/                      # Contract + Route/Screen + ViewModel
 │   ├── theme/…（现有）
 │   └── components/StatusCard.kt
-└── util/DateUtils.kt                 # LocalDate <-> epochDay、YearMonth 工具
 ```
 
 ---
