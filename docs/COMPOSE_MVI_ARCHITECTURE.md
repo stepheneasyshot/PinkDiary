@@ -86,7 +86,7 @@ fun FeatureScreen(
 - 可复用组件优先接收最小必要值与语义回调，不向组件层层传递 ViewModel。
 - 仅视觉且短生命周期的状态（滚动、Pager、展开动画、焦点）可以 `remember`；业务状态不得只存在于 `remember`。
 - 派生值优先在 ViewModel/纯函数生成；只与渲染有关且计算轻量的派生值可留在 UI，必要时用 `remember`/`derivedStateOf`。
-- 所有用户可见文案与无障碍描述必须来自 `strings.xml`；不要在 Kotlin 中硬编码。
+- 所有控件文案与无障碍描述必须来自 `strings.xml`，不要在 Kotlin 中硬编码。经过审核、标注来源和复核时间的长篇科普正文可使用支持语言限定符的 `res/raw*/` Markdown 资源；页面标题、按钮和错误提示不适用此例外。
 
 ## 5. 状态、集合与稳定性
 
@@ -138,7 +138,7 @@ ui/mvi/
 
 - [ ] 修改前已阅读本规范，新增代码遵循单一 `UiState` / `Intent` / `Effect`。
 - [ ] Compose 未直接访问数据层，Screen 可由 state + callback 独立渲染。
-- [ ] 用户文案位于字符串资源，日期与颜色遵循项目约定。
+- [ ] 控件文案位于字符串资源；科普正文若使用 Markdown，位于 `res/raw*/` 且标注来源与复核时间；日期与颜色遵循项目约定。
 - [ ] 新增或变更的业务规则已有测试。
 - [ ] 已运行与风险匹配的构建/测试；奇怪增量错误已用 `clean` 复核。
 - [ ] 已检查 `README.md`、`docs/FEATURE_DESIGN.md`、`docs/PERIOD_PREDICTION_RULES.md`、本规范与 `AGENTS.md` 是否需要同步，并完成必要更新。

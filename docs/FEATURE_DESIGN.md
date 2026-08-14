@@ -48,6 +48,7 @@
 | 预测 | 周期状态 | 今天处于周期第几天、距下次经期还有几天 |
 | 首页 | 状态卡 | 顶部卡片汇总「经期中 / 距下次 X 天 / 预测今日开始」 |
 | 设置 | 默认值 | 默认周期长度、默认经期长度、参与平均的历史周期数 |
+| 科普 | 文章列表与详情 | 首批内置 15 篇文章；列表展示标题和摘要，点击后从本地 Markdown 加载审核过的正文并原生 Compose 渲染 |
 
 ### 3.2 明确不在初期范围（预留扩展点，不实现）
 
@@ -202,6 +203,7 @@ app/src/main/java/com/stephen/pinkdiary/
 │   ├── mvi/MviViewModel.kt            # 通用单向状态容器
 │   ├── home/                          # Contract + Route/Screen + ViewModel
 │   ├── calendar/CalendarMonth.kt, CalendarDayCell.kt, CalendarLegend.kt
+│   ├── knowledge/                     # 本地 Markdown 科普 Contract + Route/Screen + ViewModel
 │   ├── record/RecordSheet.kt
 │   ├── settings/                      # Contract + Route/Screen + ViewModel
 │   ├── theme/…（现有）
@@ -211,6 +213,13 @@ app/src/main/java/com/stephen/pinkdiary/
 ---
 
 ## 7. UI / UX 设计
+
+### 7.0 科普内容约定
+
+- 首批 15 篇文章覆盖周期基础、初潮、记录与用品、常见症状、缺铁、子宫内膜异位症、PCOS 和围绝经期等主题。
+- 标题与摘要位于 `strings.xml`，文章正文位于 `res/raw/`；目录由 `KnowledgeRepository` 统一映射，保持列表与详情数据来源单一。
+- 正文基于 WHO、ACOG、FDA、CDC、美国女性健康办公室和 NHS 等权威资料整理，每篇必须保留资料链接、复核日期与非诊疗声明。
+- 内容更新时同步核对目录测试、Markdown 展示效果及来源有效性；医疗科普不替代个体化诊断或治疗。
 
 ### 7.1 首页布局（单屏为主，设置页次之）
 
@@ -273,7 +282,8 @@ app/src/main/java/com/stephen/pinkdiary/
 | `androidx.lifecycle:lifecycle-viewmodel-compose` | 2.11.0 | `viewModel()` 组合函数 |
 | `androidx.lifecycle:lifecycle-runtime-compose` | 2.11.0 | `collectAsStateWithLifecycle` |
 | `org.jetbrains.kotlinx:kotlinx-coroutines-android` | 1.10.2 | 协程/Flow（显式声明，避免依赖传递不确定性） |
-| （暂不加）`androidx.navigation:navigation-compose` | — | 初期用简单状态切换做单页/设置页导航 |
+| `androidx.navigation:navigation-compose` | 2.9.8 | 底部导航与页面状态恢复 |
+| `com.mikepenz:multiplatform-markdown-renderer-m3` | 0.38.1 | 科普 Markdown 的 Compose Material 3 原生渲染；与项目 Kotlin 2.2 对齐 |
 
 > 说明：本项目采用 AGP 9 的「内置 Kotlin」模型（`com.android.application` 直接编译 Kotlin，无需 `kotlin-android` 插件），KSP 因此选用与编译器版本解耦的 2.3.x 系列而非 `2.2.10-2.0.2`。Room 3.0 已发布但包名重构、KMP 优先，MVP 沿用稳定成熟的 2.8.x。
 

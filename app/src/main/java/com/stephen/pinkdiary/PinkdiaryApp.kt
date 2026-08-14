@@ -3,7 +3,9 @@ package com.stephen.pinkdiary
 import android.app.Application
 import com.stephen.pinkdiary.data.local.AppDatabase
 import com.stephen.pinkdiary.data.repository.DataStoreUserSettingsRepository
+import com.stephen.pinkdiary.data.repository.KnowledgeRepository
 import com.stephen.pinkdiary.data.repository.PeriodRepository
+import com.stephen.pinkdiary.data.repository.RawKnowledgeRepository
 import com.stephen.pinkdiary.data.repository.RoomPeriodRepository
 import com.stephen.pinkdiary.data.repository.UserSettingsRepository
 
@@ -17,4 +19,6 @@ class PinkdiaryApp : Application() {
     val periodRepository: PeriodRepository by lazy { RoomPeriodRepository(database.periodDao()) }
 
     val userSettingsRepository: UserSettingsRepository by lazy { DataStoreUserSettingsRepository(this) }
+
+    val knowledgeRepository: KnowledgeRepository by lazy { RawKnowledgeRepository(resources) }
 }

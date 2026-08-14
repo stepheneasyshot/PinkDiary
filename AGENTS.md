@@ -69,7 +69,7 @@ app/src/main/java/com/stephen/pinkdiary/
     ├── calendar/              日历（Pager/Month/DayCell/Legend/MacaronColors）
     ├── record/                记录弹窗（RecordSheet）
     ├── settings/              设置页（Contract、Screen、ViewModel）
-    ├── knowledge/             科普占位页
+    ├── knowledge/             科普页（本地 Markdown + 严格 MVI）
     ├── onboarding/            首次启动引导
     ├── components/            StatusCard
     └── theme/                 Color、Theme、Type
@@ -80,7 +80,7 @@ docs/                          方案与规则文档
 
 ## 注意事项（重要）
 
-1. **UI 显示字符串必须写在资源文件**（强制）：所有用户可见文案——Compose `Text`、按钮、`contentDescription`、Snackbar/Toast、校验错误提示等——必须写入 `app/src/main/res/values/strings.xml`，用 `stringResource(R.string.xxx)` 引用，禁止在 Kotlin 中硬编码字符串字面量。带占位符的文案用 `%1$d` / `%2$s` 等格式化，调用 `stringResource(R.string.xxx, arg1, arg2)` 传参；星期等成组文案用 `<string-array>`。内部标识（Room 表名/数据库名、DataStore key、导航 route、preference key 等）不属于 UI 文案，**不要**放进 strings.xml。ViewModel 不解析文案；需要用户提示时发出携带字符串资源 id 或类型化错误的 Effect，由 Route 解析（见 `HomeEffect.ShowMessage`）。
+1. **UI 显示字符串必须写在资源文件**（强制）：所有用户可见的控件文案——Compose `Text`、按钮、`contentDescription`、Snackbar/Toast、校验错误提示等——必须写入 `app/src/main/res/values/strings.xml`，用 `stringResource(R.string.xxx)` 引用，禁止在 Kotlin 中硬编码字符串字面量。带占位符的文案用 `%1$d` / `%2$s` 等格式化，调用 `stringResource(R.string.xxx, arg1, arg2)` 传参；星期等成组文案用 `<string-array>`。**唯一例外**：经过审核的长篇科普正文允许放在支持语言限定符的 `res/raw*/` Markdown 资源中，标题、按钮、错误提示等页面控件文案仍必须使用 `strings.xml`。内部标识（Room 表名/数据库名、DataStore key、导航 route、preference key 等）不属于 UI 文案，**不要**放进 strings.xml。ViewModel 不解析文案；需要用户提示时发出携带字符串资源 id 或类型化错误的 Effect，由 Route 解析（见 `HomeEffect.ShowMessage`）。
 
 2. **增量编译可能误报**：工作目录存在大小写不同的符号链接（`Pinkdiary` → `PinkDiary`），会破坏 Gradle 文件监听，偶发「Unresolved reference」或符号解析错误的假阳性。**遇到奇怪的编译错误时，先 `./gradlew clean` 再构建。**
 
@@ -93,3 +93,5 @@ docs/                          方案与规则文档
 6. **预测/标记是纯函数**：`CyclePredictor`、`CalendarMarks`、`PeriodLogic` 中的规则改动，务必同步更新 `docs/PERIOD_PREDICTION_RULES.md` 和对应单测。
 
 7. **深色模式**：日历标记底色尽量用「主题表面色 + 半透明叠加」或提供深色变体，避免硬编码浅色在深色下不可读。
+
+8. **科普内容可追溯**：`res/raw*/` 中的健康科普 Markdown 必须标注权威资料来源和审核/复核时间；医疗规则或正文更新时同步检查展示效果与相关技术文档。

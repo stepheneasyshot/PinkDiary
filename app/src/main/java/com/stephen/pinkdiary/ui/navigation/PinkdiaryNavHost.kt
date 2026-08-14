@@ -25,7 +25,8 @@ import com.stephen.pinkdiary.PinkdiaryApp
 import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.ui.home.HomeRoute
 import com.stephen.pinkdiary.ui.home.HomeViewModel
-import com.stephen.pinkdiary.ui.knowledge.KnowledgeScreen
+import com.stephen.pinkdiary.ui.knowledge.KnowledgeRoute
+import com.stephen.pinkdiary.ui.knowledge.KnowledgeViewModel
 import com.stephen.pinkdiary.ui.settings.SettingsRoute
 import com.stephen.pinkdiary.ui.settings.SettingsViewModel
 
@@ -85,7 +86,8 @@ fun PinkdiaryNavHost(app: PinkdiaryApp) {
                 HomeRoute(viewModel = viewModel)
             }
             composable(Routes.KNOWLEDGE) {
-                KnowledgeScreen()
+                val viewModel: KnowledgeViewModel = viewModel(factory = KnowledgeViewModel.factory(app))
+                KnowledgeRoute(viewModel = viewModel)
             }
             composable(Routes.SETTINGS) {
                 val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.factory(app))

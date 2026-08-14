@@ -74,7 +74,40 @@
 
     <!-- 科普 -->
     <string name="knowledge_title">科普</string>
-    <string name="knowledge_coming_soon">功能开发中，敬请期待</string>
+    <string name="knowledge_intro">了解月经与身体节律，照顾每一个阶段的自己</string>
+    <string name="knowledge_article_cycle_title">月经周期，身体的自然节律</string>
+    <string name="knowledge_article_cycle_summary">从周期如何计算，到日常记录重点和需要就医的信号。</string>
+    <string name="knowledge_article_phases_title">月经周期的四个阶段</string>
+    <string name="knowledge_article_phases_summary">认识月经期、卵泡期、排卵期和黄体期，以及日历预测的边界。</string>
+    <string name="knowledge_article_first_period_title">第一次月经：初潮准备指南</string>
+    <string name="knowledge_article_first_period_summary">了解初潮前后的身体变化、用品准备和需要咨询医生的情况。</string>
+    <string name="knowledge_article_tracking_title">怎样科学记录月经</string>
+    <string name="knowledge_article_tracking_summary">记录日期、经量和伴随症状，正确理解 App 预测并保护健康隐私。</string>
+    <string name="knowledge_article_products_title">经期用品与卫生安全</string>
+    <string name="knowledge_article_products_summary">卫生巾、棉条、月经杯等怎样选择、使用和及时更换。</string>
+    <string name="knowledge_article_pain_title">痛经：常见不等于必须忍受</string>
+    <string name="knowledge_article_pain_summary">区分原发性与继发性痛经，了解自我照护和就医信号。</string>
+    <string name="knowledge_article_heavy_title">经量过多：怎样识别和应对</string>
+    <string name="knowledge_article_heavy_summary">从更换频率、持续时间和贫血症状判断是否需要医疗评估。</string>
+    <string name="knowledge_article_irregular_title">月经不规律意味着什么</string>
+    <string name="knowledge_article_irregular_summary">梳理常见影响因素、记录方法和建议就医的周期变化。</string>
+    <string name="knowledge_article_amenorrhea_title">月经推迟与闭经</string>
+    <string name="knowledge_article_amenorrhea_summary">了解停经的常见原因、妊娠检测和不能长期忽视的健康信号。</string>
+    <string name="knowledge_article_pms_title">PMS 与 PMDD</string>
+    <string name="knowledge_article_pms_summary">识别经前身体和情绪症状，学会连续记录并及时获得帮助。</string>
+    <string name="knowledge_article_exercise_title">月经期间可以运动吗</string>
+    <string name="knowledge_article_exercise_summary">根据真实感受调整活动，并警惕过度训练和能量不足。</string>
+    <string name="knowledge_article_iron_title">经量过多与缺铁性贫血</string>
+    <string name="knowledge_article_iron_summary">认识疲劳、心悸和头晕等表现，了解检查、饮食和补铁边界。</string>
+    <string name="knowledge_article_endometriosis_title">认识子宫内膜异位症</string>
+    <string name="knowledge_article_endometriosis_summary">关注进行性痛经、性交痛和经期排便痛，了解评估与治疗目标。</string>
+    <string name="knowledge_article_pcos_title">PCOS 为什么会影响月经</string>
+    <string name="knowledge_article_pcos_summary">理解排卵、雄激素和代谢之间的联系，避免只凭超声自我诊断。</string>
+    <string name="knowledge_article_perimenopause_title">围绝经期的月经变化</string>
+    <string name="knowledge_article_perimenopause_summary">认识周期和经量变化，并了解哪些异常出血仍需及时评估。</string>
+    <string name="knowledge_back">返回科普列表</string>
+    <string name="knowledge_load_error">科普内容暂时无法加载</string>
+    <string name="knowledge_retry">重新加载</string>
 
     <!-- 错误提示 -->
     <string name="error_generic">操作失败</string>

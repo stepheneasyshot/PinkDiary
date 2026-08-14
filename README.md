@@ -9,7 +9,8 @@
 - **周期状态**：状态卡展示「经期中第 X 天 / 距下次经期 X 天 / 预测今天开始 / 预测已过期」等状态
 - **设置**：默认周期长度、默认经期长度、参与平均的最近周期数
 - **首次启动引导**：三页介绍（记录 / 预测 / 隐私），可跳过，仅首次展示
-- **底部导航**：经期 / 科普（占位）/ 设置
+- **月经科普**：内置 15 篇经权威资料整理的离线文章；列表展示标题与摘要，详情原生渲染本地 Markdown，跟随粉色主题与深色模式
+- **底部导航**：经期 / 科普 / 设置
 - **主题**：粉白配色、支持深色模式；低饱和藕粉标记 + 马卡龙色翻页背景
 
 ## 技术栈
@@ -18,6 +19,7 @@
 |------|------|
 | 语言 | Kotlin 2.2 |
 | UI | Jetpack Compose + Material 3 |
+| 富文本 | Multiplatform Markdown Renderer（Material 3） |
 | 架构 | 单 Activity + 严格 MVI + Repository（手动 DI） |
 | 持久化 | Room（经期记录）、DataStore Preferences（设置 / 引导状态） |
 | 导航 | Navigation Compose（底部导航） |
@@ -50,6 +52,7 @@
 - `CalendarMarksTest` —— 日历标记集合
 - `PeriodLogicTest` —— 记录查询
 - `StatusCardTest` —— 状态卡文案
+- `KnowledgeCatalogTest` —— 科普目录数量、文章 ID 与资源映射
 - `AppViewModelTest` / `HomeViewModelTest` / `SettingsViewModelTest` —— `Intent -> State / Effect`
 
 ## 文档
