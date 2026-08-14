@@ -34,7 +34,7 @@ fun CalendarMonth(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(macaronColorFor(month))
+            .background(calendarColors().surface)
     ) {
         for (week in 0 until 6) {
             Row(Modifier.fillMaxWidth()) {

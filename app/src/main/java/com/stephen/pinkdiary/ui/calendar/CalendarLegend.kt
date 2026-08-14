@@ -20,21 +20,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.stephen.pinkdiary.ui.theme.PeriodPink
-import com.stephen.pinkdiary.ui.theme.PeriodPinkLight
 
 @Composable
 fun CalendarLegend(
     onJumpToToday: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = calendarColors()
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LegendItem(fill = PeriodPink, label = "经期")
+        LegendItem(fill = colors.period, label = "经期")
         Spacer(Modifier.width(16.dp))
-        LegendItem(border = PeriodPinkLight, label = "预测经期")
+        LegendItem(border = colors.predicted, label = "预测经期")
         Spacer(Modifier.weight(1f))
         Surface(
             onClick = onJumpToToday,

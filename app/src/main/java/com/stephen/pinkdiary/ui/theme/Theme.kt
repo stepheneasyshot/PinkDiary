@@ -27,11 +27,11 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = PeriodPinkLight,
+    primary = PredictedPinkDark,
     onPrimary = Color(0xFF5C1130),
     primaryContainer = Color(0xFF7D5260),
     onPrimaryContainer = PinkPrimaryContainer,
-    secondary = PeriodPinkLight,
+    secondary = PredictedPinkDark,
     onSecondary = Color(0xFF5C1130),
     background = Color(0xFF1C1316),
     onBackground = Color(0xFFF3E7EA),

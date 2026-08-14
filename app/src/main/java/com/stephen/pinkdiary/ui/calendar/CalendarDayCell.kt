@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,10 +25,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.stephen.pinkdiary.ui.theme.PeriodPink
-import com.stephen.pinkdiary.ui.theme.PeriodPinkLight
-import com.stephen.pinkdiary.ui.theme.PeriodPinkSoft
-import com.stephen.pinkdiary.ui.theme.SelectionPink
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -45,6 +42,7 @@ fun CalendarDayCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = calendarColors()
     val isPeriodDay = date in solidPeriodDates
     val isSoftPeriodDay = date in softPeriodDates
     val isPredictedDay = date in predictedDates
@@ -78,23 +76,22 @@ fun CalendarDayCell(
     }
 
     val background = when {
-        isPeriodDay -> PeriodPink
-        isSoftPeriodDay -> PeriodPinkSoft
+        isPeriodDay -> colors.period
+        isSoftPeriodDay -> colors.softPeriod
         else -> Color.Transparent
     }
 
     val numberColor = when {
-        isPeriodDay -> Color.White
-        isSoftPeriodDay -> PeriodPink
-        isPredictedDay -> PeriodPink
+        isPeriodDay -> colors.onPeriod
+        isSoftPeriodDay -> colors.onSoftPeriod
+        isPredictedDay -> colors.onPredicted
         isCurrentMonth -> MaterialTheme.colorScheme.onSurface
         else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
     }
 
     Box(
         modifier = modifier
-            .aspectRatio(1f)
-            .clickable(onClick = onClick),
+            .aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
         if (isPredictedDay) {
@@ -105,7 +102,7 @@ fun CalendarDayCell(
                         drawPredictedOutline(
                             roundLeft = roundLeft,
                             roundRight = roundRight,
-                            color = PeriodPinkLight,
+                            color = colors.predicted,
                             strokeWidth = 1.5.dp.toPx()
                         )
                     }
@@ -116,13 +113,20 @@ fun CalendarDayCell(
                     .fillMaxSize()
                     .clip(markShape)
                     .background(background)
-            )
+                )
         }
+        // 仅裁剪点击反馈层，避免影响跨日期连续绘制的经期背景和预测描边。
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(MarkCornerRadius))
+                .clickable(onClick = onClick)
+        )
         if (isSelected) {
             Box(
                 Modifier
                     .fillMaxSize()
-                    .border(2.dp, SelectionPink, RoundedCornerShape(MarkCornerRadius))
+                    .border(2.dp, colors.selection, RoundedCornerShape(MarkCornerRadius))
             )
         }
         Text(
@@ -135,9 +139,15 @@ fun CalendarDayCell(
             Box(
                 Modifier
                     .align(Alignment.BottomCenter)
+                    .offset(y = (-6).dp)
                     .size(4.dp)
                     .clip(CircleShape)
-                    .background(if (isPeriodDay) Color.White else MaterialTheme.colorScheme.onSurface)
+                    .background(
+                        when {
+                            isPeriodDay -> colors.onPeriod
+                            else -> colors.selection
+                        }
+                    )
             )
         }
     }
@@ -157,22 +167,29 @@ private fun DrawScope.drawPredictedOutline(
     val h = size.height
     val r = MarkCornerRadius.toPx()
     val cap = StrokeCap.Butt
+    // 描边以路径为中心向两侧扩展，因此外轮廓需内缩半个线宽，
+    // 否则位于日历左右边缘时会有一半落到容器外并被裁切。
+    val inset = strokeWidth / 2f
+    val left = inset
+    val right = w - inset
+    val top = inset
+    val bottom = h - inset
 
-    val topStartX = if (roundLeft) r else 0f
-    val topEndX = if (roundRight) w - r else w
+    val topStartX = if (roundLeft) left + r else 0f
+    val topEndX = if (roundRight) right - r else w
 
     // 顶边、底边
-    drawLine(color, Offset(topStartX, 0f), Offset(topEndX, 0f), strokeWidth, cap)
-    drawLine(color, Offset(topStartX, h), Offset(topEndX, h), strokeWidth, cap)
+    drawLine(color, Offset(topStartX, top), Offset(topEndX, top), strokeWidth, cap)
+    drawLine(color, Offset(topStartX, bottom), Offset(topEndX, bottom), strokeWidth, cap)
 
     if (roundLeft) {
-        drawLine(color, Offset(0f, r), Offset(0f, h - r), strokeWidth, cap)
-        drawArc(color, 180f, 90f, false, Offset(0f, 0f), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
-        drawArc(color, 90f, 90f, false, Offset(0f, h - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
+        drawLine(color, Offset(left, top + r), Offset(left, bottom - r), strokeWidth, cap)
+        drawArc(color, 180f, 90f, false, Offset(left, top), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
+        drawArc(color, 90f, 90f, false, Offset(left, bottom - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
     }
     if (roundRight) {
-        drawLine(color, Offset(w, r), Offset(w, h - r), strokeWidth, cap)
-        drawArc(color, 270f, 90f, false, Offset(w - 2f * r, 0f), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
-        drawArc(color, 0f, 90f, false, Offset(w - 2f * r, h - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
+        drawLine(color, Offset(right, top + r), Offset(right, bottom - r), strokeWidth, cap)
+        drawArc(color, 270f, 90f, false, Offset(right - 2f * r, top), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
+        drawArc(color, 0f, 90f, false, Offset(right - 2f * r, bottom - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
     }
 }
