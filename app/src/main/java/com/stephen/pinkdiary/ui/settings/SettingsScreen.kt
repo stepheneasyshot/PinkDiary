@@ -16,10 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stephen.pinkdiary.R
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel) {
@@ -33,38 +35,38 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Text(
-            text = "设置",
+            text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
 
         StepperRow(
-            title = "默认周期长度",
+            title = stringResource(R.string.settings_default_cycle_length),
             value = settings.defaultCycleLength,
             min = 21,
             max = 45,
-            suffix = "天",
+            suffix = stringResource(R.string.settings_unit_days),
             onValueChange = { viewModel.update(settings.copy(defaultCycleLength = it)) }
         )
         StepperRow(
-            title = "默认经期长度",
+            title = stringResource(R.string.settings_default_period_length),
             value = settings.defaultPeriodLength,
             min = 2,
             max = 10,
-            suffix = "天",
+            suffix = stringResource(R.string.settings_unit_days),
             onValueChange = { viewModel.update(settings.copy(defaultPeriodLength = it)) }
         )
         StepperRow(
-            title = "最近周期数",
+            title = stringResource(R.string.settings_recent_cycles),
             value = settings.recentN,
             min = 1,
             max = 12,
-            suffix = "个",
+            suffix = stringResource(R.string.settings_unit_count),
             onValueChange = { viewModel.update(settings.copy(recentN = it)) }
         )
 
         Text(
-            text = "预测规则：下次经期开始 = 最近一次开始日 + 平均周期；经期长度取已结束记录的平均值。尚无历史记录时，使用上面的默认值进行估算。",
+            text = stringResource(R.string.settings_prediction_rule),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -87,16 +89,16 @@ private fun StepperRow(
             style = MaterialTheme.typography.titleMedium
         )
         TextButton(onClick = { onValueChange(value - 1) }, enabled = value > min) {
-            Text("−", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.stepper_decrement), style = MaterialTheme.typography.titleLarge)
         }
         Text(
-            text = "$value $suffix",
+            text = stringResource(R.string.stepper_value_format, value, suffix),
             modifier = Modifier.widthIn(min = 64.dp),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium
         )
         TextButton(onClick = { onValueChange(value + 1) }, enabled = value < max) {
-            Text("+", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.stepper_increment), style = MaterialTheme.typography.titleLarge)
         }
     }
 }

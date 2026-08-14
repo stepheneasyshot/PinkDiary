@@ -67,14 +67,16 @@ docs/                          方案与规则文档
 
 ## 注意事项（重要）
 
-1. **增量编译可能误报**：工作目录存在大小写不同的符号链接（`Pinkdiary` → `PinkDiary`），会破坏 Gradle 文件监听，偶发「Unresolved reference」或符号解析错误的假阳性。**遇到奇怪的编译错误时，先 `./gradlew clean` 再构建。**
+1. **UI 显示字符串必须写在资源文件**（强制）：所有用户可见文案——Compose `Text`、按钮、`contentDescription`、Snackbar/Toast、校验错误提示等——必须写入 `app/src/main/res/values/strings.xml`，用 `stringResource(R.string.xxx)` 引用，禁止在 Kotlin 中硬编码字符串字面量。带占位符的文案用 `%1$d` / `%2$s` 等格式化，调用 `stringResource(R.string.xxx, arg1, arg2)` 传参；星期等成组文案用 `<string-array>`。内部标识（Room 表名/数据库名、DataStore key、导航 route、preference key 等）不属于 UI 文案，**不要**放进 strings.xml。非 Compose 层（ViewModel/Repository）需要用户提示时，用 `Application.getString()` 解析，或抛类型化异常由 UI 层映射为字符串资源（见 `PeriodEndBeforeStartException` → `error_end_before_start` 的现有写法）。
 
-2. **`combine` 最多 5 个流**：`kotlinx.coroutines.flow.combine` 内置重载只到 5 个 Flow；需要更多时拆成嵌套 combine 或用独立的 `StateFlow`。
+2. **增量编译可能误报**：工作目录存在大小写不同的符号链接（`Pinkdiary` → `PinkDiary`），会破坏 Gradle 文件监听，偶发「Unresolved reference」或符号解析错误的假阳性。**遇到奇怪的编译错误时，先 `./gradlew clean` 再构建。**
 
-3. **Room 走 KSP**：`app/build.gradle.kts` 里用 `ksp(libs.androidx.room.compiler)`；schema 导出到 `app/schemas/`（`exportSchema = true`）。
+3. **`combine` 最多 5 个流**：`kotlinx.coroutines.flow.combine` 内置重载只到 5 个 Flow；需要更多时拆成嵌套 combine 或用独立的 `StateFlow`。
 
-4. **颜色分两类**：主题主色（`PinkPrimary` 等）用于按钮/控件；日历语义色（`PeriodPink` 等）用于数据标记。改「经期颜色」只动日历语义色，不要动主题主色。
+4. **Room 走 KSP**：`app/build.gradle.kts` 里用 `ksp(libs.androidx.room.compiler)`；schema 导出到 `app/schemas/`（`exportSchema = true`）。
 
-5. **预测/标记是纯函数**：`CyclePredictor`、`CalendarMarks`、`PeriodLogic` 中的规则改动，务必同步更新 `docs/PERIOD_PREDICTION_RULES.md` 和对应单测。
+5. **颜色分两类**：主题主色（`PinkPrimary` 等）用于按钮/控件；日历语义色（`PeriodPink` 等）用于数据标记。改「经期颜色」只动日历语义色，不要动主题主色。
 
-6. **深色模式**：日历标记底色尽量用「主题表面色 + 半透明叠加」或提供深色变体，避免硬编码浅色在深色下不可读。
+6. **预测/标记是纯函数**：`CyclePredictor`、`CalendarMarks`、`PeriodLogic` 中的规则改动，务必同步更新 `docs/PERIOD_PREDICTION_RULES.md` 和对应单测。
+
+7. **深色模式**：日历标记底色尽量用「主题表面色 + 半透明叠加」或提供深色变体，避免硬编码浅色在深色下不可读。

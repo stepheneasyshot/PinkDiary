@@ -19,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.data.prediction.PeriodLogic
 import com.stephen.pinkdiary.ui.calendar.CalendarLegend
 import com.stephen.pinkdiary.ui.calendar.CalendarPager
@@ -110,9 +112,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
 @Composable
 private fun MarkingGuide(isColdStart: Boolean, hasOngoing: Boolean) {
     val text = when {
-        isColdStart -> "点击日历中的日期，标记你的经期开始"
-        hasOngoing -> "点击日历中的日期，选择经期结束的时间"
-        else -> "点击日期即可记录或修改经期"
+        isColdStart -> stringResource(R.string.guide_mark_period_start)
+        hasOngoing -> stringResource(R.string.guide_mark_period_end)
+        else -> stringResource(R.string.guide_mark_default)
     }
     Text(
         text = text,
@@ -124,7 +126,7 @@ private fun MarkingGuide(isColdStart: Boolean, hasOngoing: Boolean) {
 @Composable
 private fun MonthTitle(month: YearMonth) {
     Text(
-        text = "${month.year}年${month.monthValue}月",
+        text = stringResource(R.string.month_title, month.year, month.monthValue),
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold
     )

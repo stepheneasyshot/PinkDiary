@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.stephen.pinkdiary.R
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -63,7 +65,7 @@ fun CalendarMonth(
 @Composable
 fun WeekdayHeader(modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth()) {
-        listOf("一", "二", "三", "四", "五", "六", "日").forEach { label ->
+        stringArrayResource(R.array.weekday_short).forEach { label ->
             Text(
                 text = label,
                 modifier = Modifier.weight(1f),

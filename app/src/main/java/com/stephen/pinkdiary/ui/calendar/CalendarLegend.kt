@@ -18,8 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.stephen.pinkdiary.R
 
 @Composable
 fun CalendarLegend(
@@ -31,9 +33,9 @@ fun CalendarLegend(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LegendItem(fill = colors.period, label = "经期")
+        LegendItem(fill = colors.period, label = stringResource(R.string.legend_period))
         Spacer(Modifier.width(16.dp))
-        LegendItem(border = colors.predicted, label = "预测经期")
+        LegendItem(border = colors.predicted, label = stringResource(R.string.legend_predicted))
         Spacer(Modifier.weight(1f))
         Surface(
             onClick = onJumpToToday,
@@ -43,7 +45,7 @@ fun CalendarLegend(
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = "今",
+                    text = stringResource(R.string.calendar_today),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimary

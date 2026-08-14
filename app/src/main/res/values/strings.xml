@@ -1,3 +1,82 @@
 <resources>
     <string name="app_name">PinkDiary</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_period">经期</string>
+    <string name="nav_knowledge">科普</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- 首次引导 -->
+    <string name="onboarding_skip">跳过</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_start">开始使用</string>
+    <string name="onboarding_emoji_record">📅</string>
+    <string name="onboarding_title_record">记录你的经期</string>
+    <string name="onboarding_desc_record">在日历上点击日期，轻松标记经期的开始与结束</string>
+    <string name="onboarding_emoji_predict">🔮</string>
+    <string name="onboarding_title_predict">预测下次周期</string>
+    <string name="onboarding_desc_predict">根据历史记录，自动预测下次经期的开始、结束与持续时间</string>
+    <string name="onboarding_emoji_privacy">🔒</string>
+    <string name="onboarding_title_privacy">隐私安全</string>
+    <string name="onboarding_desc_privacy">所有数据仅保存在本机，不上传任何云端</string>
+
+    <!-- 主页 -->
+    <string name="guide_mark_period_start">点击日历中的日期，标记你的经期开始</string>
+    <string name="guide_mark_period_end">点击日历中的日期，选择经期结束的时间</string>
+    <string name="guide_mark_default">点击日期即可记录或修改经期</string>
+    <string name="month_title">%1$d年%2$d月</string>
+
+    <!-- 状态卡 -->
+    <string name="status_cold_start_title">开始记录你的经期</string>
+    <string name="status_on_period">经期中 · 第 %1$d 天</string>
+    <string name="status_on_period_subtitle">周期第 %1$d 天 · 平均周期 %2$d 天 · 预计持续 %3$d 天</string>
+    <string name="status_cycle_summary">周期第 %1$d 天 · 平均周期 %2$d 天</string>
+    <string name="status_overdue">预测已过 %1$d 天，请记录</string>
+    <string name="status_overdue_subtitle">若已来经期，点击日历中的日期更新记录</string>
+    <string name="status_due_today">预测今天开始</string>
+    <string name="status_upcoming">距下次经期 %1$d 天</string>
+
+    <!-- 日历 -->
+    <string name="legend_period">经期</string>
+    <string name="legend_predicted">预测经期</string>
+    <string name="calendar_today">今</string>
+    <string-array name="weekday_short">
+        <item>一</item>
+        <item>二</item>
+        <item>三</item>
+        <item>四</item>
+        <item>五</item>
+        <item>六</item>
+        <item>日</item>
+    </string-array>
+
+    <!-- 记录弹窗 -->
+    <string name="record_sheet_date">%1$d年%2$d月%3$d日</string>
+    <string name="record_ongoing">经期进行中</string>
+    <string name="record_mark_end">标记经期结束</string>
+    <string name="record_delete">删除这条记录</string>
+    <string name="record_recorded">已记录经期</string>
+    <string name="record_future_disabled">未来日期无法记录</string>
+    <string name="record_empty">该日暂无经期记录</string>
+    <string name="record_mark_start">标记经期开始</string>
+
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_default_cycle_length">默认周期长度</string>
+    <string name="settings_default_period_length">默认经期长度</string>
+    <string name="settings_recent_cycles">最近周期数</string>
+    <string name="settings_unit_days">天</string>
+    <string name="settings_unit_count">个</string>
+    <string name="settings_prediction_rule">预测规则：下次经期开始 = 最近一次开始日 + 平均周期；经期长度取已结束记录的平均值。尚无历史记录时，使用上面的默认值进行估算。</string>
+    <string name="stepper_decrement">−</string>
+    <string name="stepper_increment">+</string>
+    <string name="stepper_value_format">%1$d %2$s</string>
+
+    <!-- 科普 -->
+    <string name="knowledge_title">科普</string>
+    <string name="knowledge_coming_soon">功能开发中，敬请期待</string>
+
+    <!-- 错误提示 -->
+    <string name="error_generic">操作失败</string>
+    <string name="error_end_before_start">结束日不能早于开始日</string>
 </resources>

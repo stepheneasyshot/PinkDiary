@@ -24,10 +24,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stephen.pinkdiary.R
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(
@@ -39,9 +41,21 @@ private data class OnboardingPage(
 @Composable
 fun OnboardingScreen(onFinished: () -> Unit) {
     val pages = listOf(
-        OnboardingPage("📅", "记录你的经期", "在日历上点击日期，轻松标记经期的开始与结束"),
-        OnboardingPage("🔮", "预测下次周期", "根据历史记录，自动预测下次经期的开始、结束与持续时间"),
-        OnboardingPage("🔒", "隐私安全", "所有数据仅保存在本机，不上传任何云端")
+        OnboardingPage(
+            emoji = stringResource(R.string.onboarding_emoji_record),
+            title = stringResource(R.string.onboarding_title_record),
+            description = stringResource(R.string.onboarding_desc_record)
+        ),
+        OnboardingPage(
+            emoji = stringResource(R.string.onboarding_emoji_predict),
+            title = stringResource(R.string.onboarding_title_predict),
+            description = stringResource(R.string.onboarding_desc_predict)
+        ),
+        OnboardingPage(
+            emoji = stringResource(R.string.onboarding_emoji_privacy),
+            title = stringResource(R.string.onboarding_title_privacy),
+            description = stringResource(R.string.onboarding_desc_privacy)
+        )
     )
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val scope = rememberCoroutineScope()
@@ -61,7 +75,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
             ) {
                 if (!isLastPage) {
                     TextButton(onClick = onFinished) {
-                        Text("跳过")
+                        Text(stringResource(R.string.onboarding_skip))
                     }
                 }
             }
@@ -90,7 +104,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (isLastPage) "开始使用" else "下一步")
+                Text(if (isLastPage) stringResource(R.string.onboarding_start) else stringResource(R.string.onboarding_next))
             }
         }
     }

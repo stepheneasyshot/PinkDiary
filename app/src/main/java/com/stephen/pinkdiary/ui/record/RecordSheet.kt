@@ -14,7 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.data.local.PeriodRecord
 import java.time.LocalDate
 
@@ -38,7 +40,7 @@ fun RecordSheet(
                 .navigationBarsPadding()
         ) {
             Text(
-                text = "${date.year}年${date.monthValue}月${date.dayOfMonth}日",
+                text = stringResource(R.string.record_sheet_date, date.year, date.monthValue, date.dayOfMonth),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(12.dp))
@@ -46,31 +48,31 @@ fun RecordSheet(
             val isOngoing = coveringRecord != null && coveringRecord.endDateEpochDay == null
             when {
                 isOngoing -> {
-                    Text("经期进行中", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.record_ongoing), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(16.dp))
                     Button(onClick = onMarkEnd, modifier = Modifier.fillMaxWidth()) {
-                        Text("标记经期结束")
+                        Text(stringResource(R.string.record_mark_end))
                     }
                     Spacer(Modifier.height(8.dp))
                     TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
-                        Text("删除这条记录")
+                        Text(stringResource(R.string.record_delete))
                     }
                 }
                 coveringRecord != null -> {
-                    Text("已记录经期", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.record_recorded), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(16.dp))
                     TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
-                        Text("删除这条记录")
+                        Text(stringResource(R.string.record_delete))
                     }
                 }
                 isFutureDate -> {
-                    Text("未来日期无法记录", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.record_future_disabled), style = MaterialTheme.typography.bodyMedium)
                 }
                 else -> {
-                    Text("该日暂无经期记录", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.record_empty), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(16.dp))
                     Button(onClick = onMarkStart, modifier = Modifier.fillMaxWidth()) {
-                        Text("标记经期开始")
+                        Text(stringResource(R.string.record_mark_start))
                     }
                 }
             }

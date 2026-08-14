@@ -1,15 +1,18 @@
 package com.stephen.pinkdiary.ui.home
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.stephen.pinkdiary.PinkdiaryApp
+import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.data.local.PeriodRecord
 import com.stephen.pinkdiary.data.prediction.CalendarMarks
 import com.stephen.pinkdiary.data.prediction.CyclePrediction
 import com.stephen.pinkdiary.data.prediction.CyclePredictor
+import com.stephen.pinkdiary.data.repository.PeriodEndBeforeStartException
 import com.stephen.pinkdiary.data.repository.PeriodRepository
 import com.stephen.pinkdiary.data.repository.UserSettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +34,7 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
+    private val app: Application,
     private val periodRepository: PeriodRepository,
     private val settingsRepository: UserSettingsRepository
 ) : ViewModel() {
@@ -86,7 +90,12 @@ class HomeViewModel(
         viewModelScope.launch {
             runCatching { periodRepository.markPeriodEnd(recordId, endDate.toEpochDay()) }
                 .onSuccess { _showSheet.value = false }
-                .onFailure { _userMessage.value = it.message ?: "操作失败" }
+                .onFailure { e ->
+                    _userMessage.value = when (e) {
+                        is PeriodEndBeforeStartException -> app.getString(R.string.error_end_before_start)
+                        else -> app.getString(R.string.error_generic)
+                    }
+                }
         }
     }
 
@@ -100,7 +109,7 @@ class HomeViewModel(
     companion object {
         fun factory(app: PinkdiaryApp): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                HomeViewModel(app.periodRepository, app.userSettingsRepository)
+                HomeViewModel(app, app.periodRepository, app.userSettingsRepository)
             }
         }
     }

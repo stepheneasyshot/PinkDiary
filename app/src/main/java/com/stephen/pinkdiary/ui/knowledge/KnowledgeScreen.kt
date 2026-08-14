@@ -11,8 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.stephen.pinkdiary.R
 
 @Composable
 fun KnowledgeScreen() {
@@ -24,13 +26,13 @@ fun KnowledgeScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "科普",
+            text = stringResource(R.string.knowledge_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "功能开发中，敬请期待",
+            text = stringResource(R.string.knowledge_coming_soon),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

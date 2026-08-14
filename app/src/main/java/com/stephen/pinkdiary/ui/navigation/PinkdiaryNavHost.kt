@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -21,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.stephen.pinkdiary.PinkdiaryApp
+import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.ui.home.HomeScreen
 import com.stephen.pinkdiary.ui.home.HomeViewModel
 import com.stephen.pinkdiary.ui.knowledge.KnowledgeScreen
@@ -43,9 +45,9 @@ private data class BottomNavItem(
 fun PinkdiaryNavHost(app: PinkdiaryApp) {
     val navController = rememberNavController()
     val items = listOf(
-        BottomNavItem(Routes.PERIOD, "经期", Icons.Filled.CalendarMonth),
-        BottomNavItem(Routes.KNOWLEDGE, "科普", Icons.AutoMirrored.Filled.MenuBook),
-        BottomNavItem(Routes.SETTINGS, "设置", Icons.Filled.Settings)
+        BottomNavItem(Routes.PERIOD, stringResource(R.string.nav_period), Icons.Filled.CalendarMonth),
+        BottomNavItem(Routes.KNOWLEDGE, stringResource(R.string.nav_knowledge), Icons.AutoMirrored.Filled.MenuBook),
+        BottomNavItem(Routes.SETTINGS, stringResource(R.string.nav_settings), Icons.Filled.Settings)
     )
 
     val backStackEntry by navController.currentBackStackEntryAsState()

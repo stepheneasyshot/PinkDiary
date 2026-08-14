@@ -4,6 +4,9 @@ import com.stephen.pinkdiary.data.local.PeriodDao
 import com.stephen.pinkdiary.data.local.PeriodRecord
 import kotlinx.coroutines.flow.Flow
 
+/** 标记经期结束时，结束日早于开始日的非法状态。 */
+class PeriodEndBeforeStartException : IllegalArgumentException()
+
 class PeriodRepository(private val dao: PeriodDao) {
 
     val records: Flow<List<PeriodRecord>> = dao.observeAll()
@@ -41,11 +44,11 @@ class PeriodRepository(private val dao: PeriodDao) {
 
     /**
      * 标记经期结束。
-     * @throws IllegalArgumentException 当结束日早于开始日
+     * @throws PeriodEndBeforeStartException 当结束日早于开始日
      */
     suspend fun markPeriodEnd(recordId: Long, endEpochDay: Long) {
         val record = dao.getById(recordId) ?: return
-        require(endEpochDay >= record.startDateEpochDay) { "结束日不能早于开始日" }
+        if (endEpochDay < record.startDateEpochDay) throw PeriodEndBeforeStartException()
         dao.update(record.copy(endDateEpochDay = endEpochDay, updatedAt = System.currentTimeMillis()))
     }
 

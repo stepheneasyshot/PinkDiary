@@ -2,7 +2,6 @@ package com.stephen.pinkdiary.ui.components
 
 import com.stephen.pinkdiary.data.prediction.CyclePrediction
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 
@@ -26,35 +25,26 @@ class StatusCardTest {
 
     @Test
     fun `cold start`() {
-        val m = buildStatusCardModel(null)
-        assertEquals(StatusKind.COLD_START, m.kind)
+        assertEquals(StatusKind.COLD_START, statusKind(null))
     }
 
     @Test
     fun `on period`() {
-        val m = buildStatusCardModel(prediction(isOnPeriod = true))
-        assertEquals(StatusKind.ON_PERIOD, m.kind)
-        assertTrue(m.title.contains("第 3 天"))
-        assertTrue(m.subtitle.contains("预计持续 5 天"))
+        assertEquals(StatusKind.ON_PERIOD, statusKind(prediction(isOnPeriod = true)))
     }
 
     @Test
     fun `overdue`() {
-        val m = buildStatusCardModel(prediction(daysUntilNext = -5))
-        assertEquals(StatusKind.OVERDUE, m.kind)
-        assertTrue(m.title.contains("5 天"))
+        assertEquals(StatusKind.OVERDUE, statusKind(prediction(daysUntilNext = -5)))
     }
 
     @Test
     fun `due today`() {
-        val m = buildStatusCardModel(prediction(daysUntilNext = 0))
-        assertEquals(StatusKind.DUE_TODAY, m.kind)
+        assertEquals(StatusKind.DUE_TODAY, statusKind(prediction(daysUntilNext = 0)))
     }
 
     @Test
     fun `upcoming`() {
-        val m = buildStatusCardModel(prediction(daysUntilNext = 20))
-        assertEquals(StatusKind.UPCOMING, m.kind)
-        assertTrue(m.title.contains("20 天"))
+        assertEquals(StatusKind.UPCOMING, statusKind(prediction(daysUntilNext = 20)))
     }
 }
