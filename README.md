@@ -1,6 +1,16 @@
 # Pinkdiary（粉日记）
 
+<p align="center">
+  <img src="pics/ic_launcher-playstore.png" alt="Pinkdiary 应用图标" width="160" />
+</p>
+
 一款记录与预测女性经期的 Android 应用。用户通过日历记录每次经期的开始与结束日期，应用根据历史记录自动预测下一次经期的开始、结束与持续时间。
+
+## 应用预览
+
+| 经期 | 科普 | 设置 |
+|:---:|:---:|:---:|
+| <img src="pics/screen_shot_period.png" alt="经期日历与预测界面" width="240" /> | <img src="pics/screen_shot_knowdge.png" alt="月经科普文章列表界面" width="240" /> | <img src="pics/screen_shot_settings.png" alt="周期参数设置界面" width="240" /> |
 
 ## 功能特性
 
