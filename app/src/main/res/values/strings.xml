@@ -62,6 +62,7 @@
     <string name="record_phase_follicular">预测卵泡期</string>
     <string name="record_phase_ovulation">预测排卵日</string>
     <string name="record_phase_luteal">预测黄体期</string>
+    <string name="record_future_date">未来日期</string>
     <string name="record_future_disabled">未来日期无法记录</string>
     <string name="record_empty">该日暂无经期记录</string>
     <string name="record_mark_start">标记经期开始</string>
