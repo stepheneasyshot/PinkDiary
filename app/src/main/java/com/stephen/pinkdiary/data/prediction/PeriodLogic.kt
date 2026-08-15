@@ -4,7 +4,7 @@ import com.stephen.pinkdiary.data.local.PeriodRecord
 import java.time.LocalDate
 
 /**
- * 记录查询纯函数，供记录交互（RecordSheet/快捷入口）判断上下文。
+ * 记录查询纯函数，供日历记录操作区判断上下文。
  */
 object PeriodLogic {
 

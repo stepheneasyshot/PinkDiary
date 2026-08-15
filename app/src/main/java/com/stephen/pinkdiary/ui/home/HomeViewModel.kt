@@ -54,7 +54,6 @@ class HomeViewModel(
     override fun onIntent(intent: HomeIntent) {
         when (intent) {
             is HomeIntent.DateSelected -> selectDate(intent.date)
-            HomeIntent.RecordSheetDismissed -> reduce { it.copy(isRecordSheetVisible = false) }
             HomeIntent.MarkPeriodStartClicked -> markPeriodStart()
             HomeIntent.MarkPeriodEndClicked -> markPeriodEnd()
             HomeIntent.DeleteRecordClicked -> deleteRecord()
@@ -65,8 +64,7 @@ class HomeViewModel(
         reduce { current ->
             current.copy(
                 selectedDate = date,
-                selectedRecord = PeriodLogic.coveringRecord(current.records, date, current.today),
-                isRecordSheetVisible = true
+                selectedRecord = PeriodLogic.coveringRecord(current.records, date, current.today)
             )
         }
     }
@@ -91,7 +89,6 @@ class HomeViewModel(
     private fun performRecordAction(action: suspend () -> Unit) {
         viewModelScope.launch {
             runCatching { action() }
-                .onSuccess { reduce { it.copy(isRecordSheetVisible = false) } }
                 .onFailure { error ->
                     val messageRes = when (error) {
                         is PeriodEndBeforeStartException -> R.string.error_end_before_start

@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
@@ -25,7 +23,7 @@ class HomeViewModelTest {
     private val today = LocalDate.of(2026, 8, 15)
 
     @Test
-    fun `date selection and mark start flow through intent and state`() =
+    fun `date selection remains visible after inline mark start action`() =
         runTest(mainDispatcherRule.testDispatcher) {
             val periods = FakePeriodRepository()
             val viewModel = HomeViewModel(
@@ -37,13 +35,12 @@ class HomeViewModelTest {
 
             viewModel.onIntent(HomeIntent.DateSelected(today))
             assertEquals(today, viewModel.uiState.value.selectedDate)
-            assertTrue(viewModel.uiState.value.isRecordSheetVisible)
 
             viewModel.onIntent(HomeIntent.MarkPeriodStartClicked)
             advanceUntilIdle()
 
             assertEquals(today.toEpochDay(), periods.lastMarkedStart)
-            assertFalse(viewModel.uiState.value.isRecordSheetVisible)
+            assertEquals(today, viewModel.uiState.value.selectedDate)
         }
 
     @Test

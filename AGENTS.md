@@ -67,7 +67,7 @@ app/src/main/java/com/stephen/pinkdiary/
     ├── navigation/            底部导航（PinkdiaryNavHost、Routes）
     ├── home/                  经期主页（Contract、Screen、ViewModel）
     ├── calendar/              日历（Pager/Month/DayCell/Legend/MacaronColors）
-    ├── record/                记录弹窗（RecordSheet）
+    ├── record/                日历底部记录操作区（RecordActions）
     ├── settings/              设置页（Contract、Screen、ViewModel）
     ├── knowledge/             科普页（本地 Markdown + 严格 MVI）
     ├── onboarding/            首次启动引导

@@ -15,13 +15,11 @@ data class HomeUiState(
     val prediction: CyclePrediction? = null,
     val selectedDate: LocalDate? = null,
     val selectedRecord: PeriodRecord? = null,
-    val hasOngoingRecord: Boolean = false,
-    val isRecordSheetVisible: Boolean = false
+    val hasOngoingRecord: Boolean = false
 )
 
 sealed interface HomeIntent {
     data class DateSelected(val date: LocalDate) : HomeIntent
-    data object RecordSheetDismissed : HomeIntent
     data object MarkPeriodStartClicked : HomeIntent
     data object MarkPeriodEndClicked : HomeIntent
     data object DeleteRecordClicked : HomeIntent

@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -29,7 +27,7 @@ import com.stephen.pinkdiary.ui.calendar.CalendarLegend
 import com.stephen.pinkdiary.ui.calendar.CalendarPager
 import com.stephen.pinkdiary.ui.calendar.WeekdayHeader
 import com.stephen.pinkdiary.ui.components.StatusCard
-import com.stephen.pinkdiary.ui.record.RecordSheet
+import com.stephen.pinkdiary.ui.record.RecordActions
 import kotlinx.coroutines.launch
 import java.time.YearMonth
 
@@ -62,8 +60,6 @@ fun HomeScreen(
     snackbarHostState: SnackbarHostState,
     onIntent: (HomeIntent) -> Unit
 ) {
-
-    val selectedDate = state.selectedDate ?: state.today
     // 月份翻页：初始定位到本月，支持左右手势滑动
     val initialMonth = remember { YearMonth.now() }
     val basePage = 1_000_000
@@ -75,9 +71,8 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             StatusCard(state)
             MonthTitle(currentMonth)
@@ -98,26 +93,19 @@ fun HomeScreen(
                     scope.launch { pagerState.animateScrollToPage(basePage) }
                 }
             )
-            MarkingGuide(
-                isColdStart = state.prediction == null,
-                hasOngoing = state.hasOngoingRecord
-            )
+            state.selectedDate?.let { selectedDate ->
+                RecordActions(
+                    coveringRecord = state.selectedRecord,
+                    isFutureDate = selectedDate.isAfter(state.today),
+                    onMarkStart = { onIntent(HomeIntent.MarkPeriodStartClicked) },
+                    onMarkEnd = { onIntent(HomeIntent.MarkPeriodEndClicked) },
+                    onDelete = { onIntent(HomeIntent.DeleteRecordClicked) }
+                )
+            }
         }
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
-        )
-    }
-
-    if (state.isRecordSheetVisible) {
-        RecordSheet(
-            date = selectedDate,
-            coveringRecord = state.selectedRecord,
-            isFutureDate = selectedDate.isAfter(state.today),
-            onDismiss = { onIntent(HomeIntent.RecordSheetDismissed) },
-            onMarkStart = { onIntent(HomeIntent.MarkPeriodStartClicked) },
-            onMarkEnd = { onIntent(HomeIntent.MarkPeriodEndClicked) },
-            onDelete = { onIntent(HomeIntent.DeleteRecordClicked) }
         )
     }
 }

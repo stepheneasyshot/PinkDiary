@@ -180,7 +180,7 @@ Compose Route ──Intent──► MVI ViewModel ──► Repository ──►
 
 - **单 Activity + 多 Composable**，严格 MVI；详细约束见 `COMPOSE_MVI_ARCHITECTURE.md`。
 - 每个有状态功能使用单一 `UiState`、密封 `Intent`、密封 `Effect` 与唯一 `onIntent` 入口。
-- ViewModel 合并 Repository 数据与本地交互状态，产出完整页面 `UiState`（含日历标记、预测结果与弹窗状态）。
+- ViewModel 合并 Repository 数据与本地交互状态，产出完整页面 `UiState`（含日历标记、预测结果与选中日期）。
 - 预测逻辑独立成 `CyclePredictor`，不依赖 Android，纯 `LocalDate` + `List` 计算，单测覆盖。
 - Route 用 `collectAsStateWithLifecycle` 收集状态与一次性 Effect；Screen 只做无状态渲染并回传 Intent。
 
@@ -204,7 +204,7 @@ app/src/main/java/com/stephen/pinkdiary/
 │   ├── home/                          # Contract + Route/Screen + ViewModel
 │   ├── calendar/CalendarMonth.kt, CalendarDayCell.kt, CalendarLegend.kt
 │   ├── knowledge/                     # 本地 Markdown 科普 Contract + Route/Screen + ViewModel
-│   ├── record/RecordSheet.kt
+│   ├── record/RecordActions.kt
 │   ├── settings/                      # Contract + Route/Screen + ViewModel
 │   ├── theme/…（现有）
 │   └── components/StatusCard.kt
@@ -235,7 +235,7 @@ app/src/main/java/com/stephen/pinkdiary/
 ├─────────────────────────────┤
 │  ● 经期  ○ 预测经期  ◉ 今天 │  ← 图例
 │  ─────────────────────────  │
-│  选中日期详情 + 操作按钮      │  ← 「标记开始/结束」「清除」
+│  阶段说明 + 紧凑操作按钮    │  ← 一行说明 + 「标记开始/结束」「清除」
 └─────────────────────────────┘
 ```
 
@@ -256,8 +256,9 @@ app/src/main/java/com/stephen/pinkdiary/
 
 ### 7.3 记录交互
 
-1. 点击某天 → 底部 `RecordSheet` 显示该日信息。
-2. 按钮随上下文变化：
+1. 点击某天 → 图例下方显示内联 `RecordActions` 操作区；日期由日历选中态表达，操作区不重复显示日期。
+2. 操作按钮上方保留一行阶段说明；当前显示经期记录状态，后续可扩展为卵泡期、排卵期等周期阶段说明。
+3. 按钮随上下文变化：
    - 该日无标记 → 「标记经期开始」
    - 该日已标记开始且未结束 → 「标记经期结束」
    - 该日是进行中经期的开始日 → 「标记经期结束」

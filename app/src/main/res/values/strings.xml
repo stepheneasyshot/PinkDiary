@@ -50,12 +50,11 @@
         <item>日</item>
     </string-array>
 
-    <!-- 记录弹窗 -->
-    <string name="record_sheet_date">%1$d年%2$d月%3$d日</string>
+    <!-- 日历记录操作区 -->
     <string name="record_ongoing">经期进行中</string>
     <string name="record_mark_end">标记经期结束</string>
     <string name="record_delete">删除这条记录</string>
-    <string name="record_recorded">已记录经期</string>
+    <string name="record_recorded">已记经期</string>
     <string name="record_future_disabled">未来日期无法记录</string>
     <string name="record_empty">该日暂无经期记录</string>
     <string name="record_mark_start">标记经期开始</string>
