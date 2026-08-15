@@ -5,7 +5,7 @@ plugins {
 }
 
 val appVersionCode = 1
-val appVersionName = "1.1.0"
+val appVersionName = "1.1.1"
 
 base {
     archivesName.set("PinkDiary-v$appVersionName")
