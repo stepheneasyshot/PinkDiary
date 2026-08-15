@@ -75,8 +75,8 @@
     <string name="settings_unit_days">天</string>
     <string name="settings_unit_count">个</string>
     <string name="settings_prediction_rule">预测规则：下次经期开始 = 最近一次开始日 + 平均周期；经期长度取已结束记录的平均值。尚无历史记录时，使用上面的默认值进行估算。</string>
-    <string name="stepper_decrement">−</string>
-    <string name="stepper_increment">+</string>
+    <string name="stepper_decrement">减少%1$s</string>
+    <string name="stepper_increment">增加%1$s</string>
     <string name="stepper_value_format">%1$d %2$s</string>
 
     <!-- 科普 -->

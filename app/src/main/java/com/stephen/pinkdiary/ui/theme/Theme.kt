@@ -37,6 +37,7 @@ private val DarkColors = darkColorScheme(
     onBackground = Color(0xFFF3E7EA),
     surface = Color(0xFF1C1316),
     onSurface = Color(0xFFF3E7EA),
+    surfaceContainerLow = Color(0xFF3A2930),
     surfaceVariant = Color(0xFF2D1B23),
     onSurfaceVariant = Color(0xFFD8C0C8)
 )

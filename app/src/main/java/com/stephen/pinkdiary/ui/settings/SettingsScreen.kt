@@ -7,21 +7,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -120,14 +127,26 @@ private fun StepperRow(
     enabled: Boolean,
     onValueChange: (Int) -> Unit
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
+
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = title,
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleMedium
         )
-        TextButton(onClick = { onValueChange(value - 1) }, enabled = enabled && value > min) {
-            Text(stringResource(R.string.stepper_decrement), style = MaterialTheme.typography.titleLarge)
+        FilledIconButton(
+            onClick = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                onValueChange(value - 1)
+            },
+            modifier = Modifier.size(28.dp),
+            enabled = enabled && value > min
+        ) {
+            Icon(
+                imageVector = Icons.Default.Remove,
+                contentDescription = stringResource(R.string.stepper_decrement, title)
+            )
         }
         Text(
             text = stringResource(R.string.stepper_value_format, value, suffix),
@@ -135,8 +154,18 @@ private fun StepperRow(
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium
         )
-        TextButton(onClick = { onValueChange(value + 1) }, enabled = enabled && value < max) {
-            Text(stringResource(R.string.stepper_increment), style = MaterialTheme.typography.titleLarge)
+        FilledIconButton(
+            onClick = {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                onValueChange(value + 1)
+            },
+            modifier = Modifier.size(28.dp),
+            enabled = enabled && value < max
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.stepper_increment, title)
+            )
         }
     }
 }
