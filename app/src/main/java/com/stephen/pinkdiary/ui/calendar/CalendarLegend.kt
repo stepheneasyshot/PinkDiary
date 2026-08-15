@@ -1,7 +1,6 @@
 package com.stephen.pinkdiary.ui.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,8 +43,7 @@ fun CalendarLegend(
             ) {
                 LegendItem(fill = colors.period, label = stringResource(R.string.legend_period))
                 LegendItem(
-                    fill = colors.softPeriod.copy(alpha = 0.55f),
-                    border = colors.predicted,
+                    fill = colors.predictedPeriod,
                     label = stringResource(R.string.legend_predicted)
                 )
             }
@@ -80,7 +78,6 @@ fun CalendarLegend(
 @Composable
 private fun LegendItem(
     fill: Color? = null,
-    border: Color? = null,
     label: String,
 ) {
     Row(
@@ -92,7 +89,6 @@ private fun LegendItem(
                 .size(14.dp)
                 .clip(CircleShape)
                 .background(fill ?: Color.Transparent)
-                .then(if (border != null) Modifier.border(1.5.dp, border, CircleShape) else Modifier)
         )
         Text(
             text = label,

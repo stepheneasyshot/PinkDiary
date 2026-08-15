@@ -73,6 +73,11 @@ fun StatusCard(state: HomeUiState, modifier: Modifier = Modifier) {
         StatusKind.OVERDUE -> OnWarningContainer
         else -> MaterialTheme.colorScheme.onSurface
     }
+    val subtitleColor = when (kind) {
+        StatusKind.ON_PERIOD -> MaterialTheme.colorScheme.onPrimaryContainer
+        StatusKind.OVERDUE -> OnWarningContainer
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }.copy(alpha = 0.82f)
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -83,7 +88,7 @@ fun StatusCard(state: HomeUiState, modifier: Modifier = Modifier) {
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = subtitleColor
             )
         }
     }

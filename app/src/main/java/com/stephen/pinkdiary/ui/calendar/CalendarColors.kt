@@ -19,10 +19,10 @@ import com.stephen.pinkdiary.ui.theme.PeriodPink
 import com.stephen.pinkdiary.ui.theme.PeriodPinkDark
 import com.stephen.pinkdiary.ui.theme.PeriodPinkSoft
 import com.stephen.pinkdiary.ui.theme.PeriodPinkSoftDark
+import com.stephen.pinkdiary.ui.theme.PredictedPeriodFill
+import com.stephen.pinkdiary.ui.theme.PredictedPeriodFillDark
 import com.stephen.pinkdiary.ui.theme.OvulationTint
 import com.stephen.pinkdiary.ui.theme.OvulationTintDark
-import com.stephen.pinkdiary.ui.theme.PredictedPink
-import com.stephen.pinkdiary.ui.theme.PredictedPinkDark
 import com.stephen.pinkdiary.ui.theme.SelectionPink
 import com.stephen.pinkdiary.ui.theme.SelectionPinkDark
 
@@ -33,7 +33,7 @@ internal data class CalendarColors(
     val onPeriod: Color,
     val softPeriod: Color,
     val onSoftPeriod: Color,
-    val predicted: Color,
+    val predictedPeriod: Color,
     val onPredicted: Color,
     val follicular: Color,
     val ovulation: Color,
@@ -49,7 +49,7 @@ internal fun calendarColors(): CalendarColors = if (isSystemInDarkTheme()) {
         onPeriod = OnPeriodPink,
         softPeriod = PeriodPinkSoftDark,
         onSoftPeriod = OnPeriodPinkSoftDark,
-        predicted = PredictedPinkDark,
+        predictedPeriod = PredictedPeriodFillDark,
         onPredicted = OnPredictedPinkDark,
         follicular = FollicularTintDark,
         ovulation = OvulationTintDark,
@@ -63,7 +63,7 @@ internal fun calendarColors(): CalendarColors = if (isSystemInDarkTheme()) {
         onPeriod = OnPeriodPink,
         softPeriod = PeriodPinkSoft,
         onSoftPeriod = OnPeriodPinkSoft,
-        predicted = PredictedPink,
+        predictedPeriod = PredictedPeriodFill,
         onPredicted = OnPredictedPink,
         follicular = FollicularTint,
         ovulation = OvulationTint,

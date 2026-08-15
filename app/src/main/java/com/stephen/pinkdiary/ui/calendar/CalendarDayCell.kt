@@ -23,6 +23,7 @@ import java.time.LocalDate
 
 private val MarkCornerRadius = 14.dp
 private val DateMarkerSize = 28.dp
+private val SelectionRingSize = 36.dp
 
 @Composable
 fun CalendarDayCell(
@@ -51,7 +52,7 @@ fun CalendarDayCell(
     val markerFill = when {
         isPeriodDay -> colors.period
         isSoftPeriodDay -> colors.softPeriod
-        isPredictedDay -> colors.softPeriod.copy(alpha = 0.55f)
+        isPredictedDay -> colors.predictedPeriod
         else -> phaseColor
     }
 
@@ -74,13 +75,6 @@ fun CalendarDayCell(
                     .size(DateMarkerSize)
                     .clip(CircleShape)
                     .background(markerFill)
-                    .then(
-                        if (isPredictedDay) {
-                            Modifier.border(1.5.dp, colors.predicted, CircleShape)
-                        } else {
-                            Modifier
-                        }
-                    )
             )
         }
         Box(
@@ -92,8 +86,8 @@ fun CalendarDayCell(
         if (isSelected) {
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .border(2.dp, colors.selection, RoundedCornerShape(MarkCornerRadius))
+                    .size(SelectionRingSize)
+                    .border(2.dp, colors.selection, CircleShape)
             )
         }
         Text(
@@ -106,7 +100,7 @@ fun CalendarDayCell(
             Box(
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(y = (-6).dp)
+                    .offset(y = 1.dp)
                     .size(4.dp)
                     .clip(CircleShape)
                     .background(
