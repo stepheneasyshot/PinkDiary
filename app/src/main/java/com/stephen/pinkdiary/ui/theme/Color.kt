@@ -28,6 +28,10 @@ val OnPeriodPinkSoft = Color(0xFF733849)
 val PredictedPink = Color(0xFFB56A81)
 val OnPredictedPink = Color(0xFF713B4D)
 val SelectionPink = Color(0xFFE6A0B4)
+// 周期阶段仅作辅助提示，使用低饱和、低对比色，避免抢过经期标记。
+val FollicularTint = Color(0xFFE5F1EE)
+val OvulationTint = Color(0xFFF6EDC9)
+val LutealTint = Color(0xFFEDE8F3)
 
 // —— 日历语义色：深色模式 ——
 val CalendarSurfaceDark = Color(0xFF271B20)
@@ -37,6 +41,9 @@ val OnPeriodPinkSoftDark = Color(0xFFF6D7E0)
 val PredictedPinkDark = Color(0xFFD493A7)
 val OnPredictedPinkDark = Color(0xFFF1CBD6)
 val SelectionPinkDark = Color(0xFFD7A1B0)
+val FollicularTintDark = Color(0xFF30413E)
+val OvulationTintDark = Color(0xFF4A422B)
+val LutealTintDark = Color(0xFF3D3646)
 
 // —— 提醒（琥珀，用于「预测已过期」等需注意的状态）——
 val WarningContainer = Color(0xFFFFECB3)

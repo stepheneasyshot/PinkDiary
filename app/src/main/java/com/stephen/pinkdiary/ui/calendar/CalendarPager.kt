@@ -7,6 +7,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.stephen.pinkdiary.data.prediction.CyclePhaseDates
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -24,6 +25,7 @@ fun CalendarPager(
     solidPeriodDates: Set<LocalDate>,
     softPeriodDates: Set<LocalDate>,
     predictedDates: Set<LocalDate>,
+    cyclePhaseDates: CyclePhaseDates,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
@@ -44,6 +46,7 @@ fun CalendarPager(
                 solidPeriodDates = solidPeriodDates,
                 softPeriodDates = softPeriodDates,
                 predictedDates = predictedDates,
+                cyclePhaseDates = cyclePhaseDates,
                 selectedDate = selectedDate,
                 onDateSelected = onDateSelected
             )

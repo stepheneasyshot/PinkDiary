@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.stephen.pinkdiary.R
+import com.stephen.pinkdiary.data.prediction.CyclePhaseDates
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -24,6 +25,7 @@ fun CalendarMonth(
     solidPeriodDates: Set<LocalDate>,
     softPeriodDates: Set<LocalDate>,
     predictedDates: Set<LocalDate>,
+    cyclePhaseDates: CyclePhaseDates,
     selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
@@ -49,6 +51,7 @@ fun CalendarMonth(
                         solidPeriodDates = solidPeriodDates,
                         softPeriodDates = softPeriodDates,
                         predictedDates = predictedDates,
+                        cyclePhase = cyclePhaseDates.phaseOn(date),
                         isSelected = date == selectedDate,
                         onClick = { onDateSelected(date) },
                         modifier = Modifier.weight(1f)

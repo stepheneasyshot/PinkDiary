@@ -16,19 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.time.DayOfWeek
+import com.stephen.pinkdiary.data.prediction.CyclePhase
 import java.time.LocalDate
 
 private val MarkCornerRadius = 14.dp
+private val DateMarkerSize = 28.dp
 
 @Composable
 fun CalendarDayCell(
@@ -38,6 +32,7 @@ fun CalendarDayCell(
     solidPeriodDates: Set<LocalDate>,
     softPeriodDates: Set<LocalDate>,
     predictedDates: Set<LocalDate>,
+    cyclePhase: CyclePhase?,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -46,39 +41,18 @@ fun CalendarDayCell(
     val isPeriodDay = date in solidPeriodDates
     val isSoftPeriodDay = date in softPeriodDates
     val isPredictedDay = date in predictedDates
-
-    val prev = date.minusDays(1)
-    val next = date.plusDays(1)
-
-    // 与左右相邻格是否「连通」：同类型连续；进行中经期的实心开始日 ↔ 温和后续日
-    val connectedLeft = when {
-        isPeriodDay -> prev in solidPeriodDates
-        isSoftPeriodDay -> prev in softPeriodDates || prev in solidPeriodDates
-        isPredictedDay -> prev in predictedDates
-        else -> false
-    }
-    val connectedRight = when {
-        isPeriodDay -> next in solidPeriodDates || next in softPeriodDates
-        isSoftPeriodDay -> next in softPeriodDates
-        isPredictedDay -> next in predictedDates
-        else -> false
+    val phaseColor = when (cyclePhase) {
+        CyclePhase.FOLLICULAR -> colors.follicular
+        CyclePhase.OVULATION -> colors.ovulation
+        CyclePhase.LUTEAL -> colors.luteal
+        null -> null
     }
 
-    val isMarked = isPeriodDay || isSoftPeriodDay || isPredictedDay
-    val roundLeft = isMarked && (!connectedLeft || date.dayOfWeek == DayOfWeek.MONDAY)
-    val roundRight = isMarked && (!connectedRight || date.dayOfWeek == DayOfWeek.SUNDAY)
-
-    val markShape = when {
-        roundLeft && roundRight -> RoundedCornerShape(MarkCornerRadius)
-        roundLeft -> RoundedCornerShape(MarkCornerRadius, 0.dp, 0.dp, MarkCornerRadius)
-        roundRight -> RoundedCornerShape(0.dp, MarkCornerRadius, MarkCornerRadius, 0.dp)
-        else -> RoundedCornerShape(0.dp)
-    }
-
-    val background = when {
+    val markerFill = when {
         isPeriodDay -> colors.period
         isSoftPeriodDay -> colors.softPeriod
-        else -> Color.Transparent
+        isPredictedDay -> colors.softPeriod.copy(alpha = 0.55f)
+        else -> phaseColor
     }
 
     val numberColor = when {
@@ -94,28 +68,21 @@ fun CalendarDayCell(
             .aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
-        if (isPredictedDay) {
+        if (markerFill != null) {
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawPredictedOutline(
-                            roundLeft = roundLeft,
-                            roundRight = roundRight,
-                            color = colors.predicted,
-                            strokeWidth = 1.5.dp.toPx()
-                        )
-                    }
+                    .size(DateMarkerSize)
+                    .clip(CircleShape)
+                    .background(markerFill)
+                    .then(
+                        if (isPredictedDay) {
+                            Modifier.border(1.5.dp, colors.predicted, CircleShape)
+                        } else {
+                            Modifier
+                        }
+                    )
             )
-        } else if (isPeriodDay || isSoftPeriodDay) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clip(markShape)
-                    .background(background)
-                )
         }
-        // 仅裁剪点击反馈层，避免影响跨日期连续绘制的经期背景和预测描边。
         Box(
             Modifier
                 .fillMaxSize()
@@ -150,46 +117,5 @@ fun CalendarDayCell(
                     )
             )
         }
-    }
-}
-
-/**
- * 绘制预测经期的连通描边：仅外轮廓（顶/底边 + 首尾侧边与圆角），
- * 中间相邻天不绘制左右竖线，避免出现割裂的分割线。
- */
-private fun DrawScope.drawPredictedOutline(
-    roundLeft: Boolean,
-    roundRight: Boolean,
-    color: Color,
-    strokeWidth: Float
-) {
-    val w = size.width
-    val h = size.height
-    val r = MarkCornerRadius.toPx()
-    val cap = StrokeCap.Butt
-    // 描边以路径为中心向两侧扩展，因此外轮廓需内缩半个线宽，
-    // 否则位于日历左右边缘时会有一半落到容器外并被裁切。
-    val inset = strokeWidth / 2f
-    val left = inset
-    val right = w - inset
-    val top = inset
-    val bottom = h - inset
-
-    val topStartX = if (roundLeft) left + r else 0f
-    val topEndX = if (roundRight) right - r else w
-
-    // 顶边、底边
-    drawLine(color, Offset(topStartX, top), Offset(topEndX, top), strokeWidth, cap)
-    drawLine(color, Offset(topStartX, bottom), Offset(topEndX, bottom), strokeWidth, cap)
-
-    if (roundLeft) {
-        drawLine(color, Offset(left, top + r), Offset(left, bottom - r), strokeWidth, cap)
-        drawArc(color, 180f, 90f, false, Offset(left, top), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
-        drawArc(color, 90f, 90f, false, Offset(left, bottom - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
-    }
-    if (roundRight) {
-        drawLine(color, Offset(right, top + r), Offset(right, bottom - r), strokeWidth, cap)
-        drawArc(color, 270f, 90f, false, Offset(right - 2f * r, top), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
-        drawArc(color, 0f, 90f, false, Offset(right - 2f * r, bottom - 2f * r), Size(2f * r, 2f * r), style = Stroke(width = strokeWidth, cap = cap))
     }
 }

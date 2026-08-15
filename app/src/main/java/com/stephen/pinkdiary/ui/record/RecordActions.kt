@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.stephen.pinkdiary.R
 import com.stephen.pinkdiary.data.local.PeriodRecord
+import com.stephen.pinkdiary.data.prediction.CyclePhase
 
 /**
  * 选中日期后显示在日历下方的内联记录操作区。
@@ -24,6 +25,8 @@ import com.stephen.pinkdiary.data.local.PeriodRecord
 @Composable
 fun RecordActions(
     coveringRecord: PeriodRecord?,
+    cyclePhase: CyclePhase?,
+    isPredictedPeriod: Boolean,
     isFutureDate: Boolean,
     onMarkStart: () -> Unit,
     onMarkEnd: () -> Unit,
@@ -46,6 +49,10 @@ fun RecordActions(
                     when {
                         isOngoing -> R.string.record_ongoing
                         coveringRecord != null -> R.string.record_recorded
+                        isPredictedPeriod -> R.string.record_predicted_period
+                        cyclePhase == CyclePhase.FOLLICULAR -> R.string.record_phase_follicular
+                        cyclePhase == CyclePhase.OVULATION -> R.string.record_phase_ovulation
+                        cyclePhase == CyclePhase.LUTEAL -> R.string.record_phase_luteal
                         isFutureDate -> R.string.record_future_disabled
                         else -> R.string.record_empty
                     }

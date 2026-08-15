@@ -6,6 +6,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.stephen.pinkdiary.ui.theme.CalendarSurface
 import com.stephen.pinkdiary.ui.theme.CalendarSurfaceDark
+import com.stephen.pinkdiary.ui.theme.FollicularTint
+import com.stephen.pinkdiary.ui.theme.FollicularTintDark
+import com.stephen.pinkdiary.ui.theme.LutealTint
+import com.stephen.pinkdiary.ui.theme.LutealTintDark
 import com.stephen.pinkdiary.ui.theme.OnPeriodPink
 import com.stephen.pinkdiary.ui.theme.OnPeriodPinkSoft
 import com.stephen.pinkdiary.ui.theme.OnPeriodPinkSoftDark
@@ -15,6 +19,8 @@ import com.stephen.pinkdiary.ui.theme.PeriodPink
 import com.stephen.pinkdiary.ui.theme.PeriodPinkDark
 import com.stephen.pinkdiary.ui.theme.PeriodPinkSoft
 import com.stephen.pinkdiary.ui.theme.PeriodPinkSoftDark
+import com.stephen.pinkdiary.ui.theme.OvulationTint
+import com.stephen.pinkdiary.ui.theme.OvulationTintDark
 import com.stephen.pinkdiary.ui.theme.PredictedPink
 import com.stephen.pinkdiary.ui.theme.PredictedPinkDark
 import com.stephen.pinkdiary.ui.theme.SelectionPink
@@ -29,6 +35,9 @@ internal data class CalendarColors(
     val onSoftPeriod: Color,
     val predicted: Color,
     val onPredicted: Color,
+    val follicular: Color,
+    val ovulation: Color,
+    val luteal: Color,
     val selection: Color
 )
 
@@ -42,6 +51,9 @@ internal fun calendarColors(): CalendarColors = if (isSystemInDarkTheme()) {
         onSoftPeriod = OnPeriodPinkSoftDark,
         predicted = PredictedPinkDark,
         onPredicted = OnPredictedPinkDark,
+        follicular = FollicularTintDark,
+        ovulation = OvulationTintDark,
+        luteal = LutealTintDark,
         selection = SelectionPinkDark
     )
 } else {
@@ -53,6 +65,9 @@ internal fun calendarColors(): CalendarColors = if (isSystemInDarkTheme()) {
         onSoftPeriod = OnPeriodPinkSoft,
         predicted = PredictedPink,
         onPredicted = OnPredictedPink,
+        follicular = FollicularTint,
+        ovulation = OvulationTint,
+        luteal = LutealTint,
         selection = SelectionPink
     )
 }

@@ -39,6 +39,9 @@
     <!-- 日历 -->
     <string name="legend_period">经期</string>
     <string name="legend_predicted">预测经期</string>
+    <string name="legend_follicular">卵泡期</string>
+    <string name="legend_ovulation">预测排卵日</string>
+    <string name="legend_luteal">黄体期</string>
     <string name="calendar_today">今</string>
     <string-array name="weekday_short">
         <item>一</item>
@@ -55,9 +58,14 @@
     <string name="record_mark_end">标记经期结束</string>
     <string name="record_delete">删除这条记录</string>
     <string name="record_recorded">已记经期</string>
+    <string name="record_predicted_period">预测经期</string>
+    <string name="record_phase_follicular">预测卵泡期</string>
+    <string name="record_phase_ovulation">预测排卵日</string>
+    <string name="record_phase_luteal">预测黄体期</string>
     <string name="record_future_disabled">未来日期无法记录</string>
     <string name="record_empty">该日暂无经期记录</string>
     <string name="record_mark_start">标记经期开始</string>
+    <string name="guide_phase_estimate">周期阶段为估算，不可用于避孕</string>
 
     <!-- 设置 -->
     <string name="settings_title">设置</string>

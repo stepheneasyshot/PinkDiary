@@ -85,6 +85,7 @@ fun HomeScreen(
                 solidPeriodDates = state.solidPeriodDates,
                 softPeriodDates = state.softPeriodDates,
                 predictedDates = state.predictedDates,
+                cyclePhaseDates = state.cyclePhaseDates,
                 selectedDate = state.selectedDate,
                 onDateSelected = { onIntent(HomeIntent.DateSelected(it)) }
             )
@@ -96,6 +97,8 @@ fun HomeScreen(
             state.selectedDate?.let { selectedDate ->
                 RecordActions(
                     coveringRecord = state.selectedRecord,
+                    cyclePhase = state.cyclePhaseDates.phaseOn(selectedDate),
+                    isPredictedPeriod = selectedDate in state.predictedDates,
                     isFutureDate = selectedDate.isAfter(state.today),
                     onMarkStart = { onIntent(HomeIntent.MarkPeriodStartClicked) },
                     onMarkEnd = { onIntent(HomeIntent.MarkPeriodEndClicked) },
@@ -115,7 +118,7 @@ private fun MarkingGuide(isColdStart: Boolean, hasOngoing: Boolean) {
     val text = when {
         isColdStart -> stringResource(R.string.guide_mark_period_start)
         hasOngoing -> stringResource(R.string.guide_mark_period_end)
-        else -> stringResource(R.string.guide_mark_default)
+        else -> stringResource(R.string.guide_phase_estimate)
     }
     Text(
         text = text,

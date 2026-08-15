@@ -3,6 +3,7 @@ package com.stephen.pinkdiary.ui.home
 import androidx.annotation.StringRes
 import com.stephen.pinkdiary.data.local.PeriodRecord
 import com.stephen.pinkdiary.data.prediction.CyclePrediction
+import com.stephen.pinkdiary.data.prediction.CyclePhaseDates
 import java.time.LocalDate
 
 data class HomeUiState(
@@ -12,6 +13,7 @@ data class HomeUiState(
     val solidPeriodDates: Set<LocalDate> = emptySet(),
     val softPeriodDates: Set<LocalDate> = emptySet(),
     val predictedDates: Set<LocalDate> = emptySet(),
+    val cyclePhaseDates: CyclePhaseDates = CyclePhaseDates(),
     val prediction: CyclePrediction? = null,
     val selectedDate: LocalDate? = null,
     val selectedRecord: PeriodRecord? = null,

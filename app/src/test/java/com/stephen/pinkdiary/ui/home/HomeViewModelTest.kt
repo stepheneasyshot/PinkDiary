@@ -1,6 +1,8 @@
 package com.stephen.pinkdiary.ui.home
 
 import com.stephen.pinkdiary.R
+import com.stephen.pinkdiary.data.local.PeriodRecord
+import com.stephen.pinkdiary.data.prediction.CyclePhase
 import com.stephen.pinkdiary.testutil.FakePeriodRepository
 import com.stephen.pinkdiary.testutil.FakeUserSettingsRepository
 import com.stephen.pinkdiary.testutil.MainDispatcherRule
@@ -60,5 +62,42 @@ class HomeViewModelTest {
             advanceUntilIdle()
 
             assertEquals(HomeEffect.ShowMessage(R.string.error_generic), effect.await())
+        }
+
+    @Test
+    fun `repository records produce cycle phase dates in ui state`() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val start = LocalDate.of(2026, 8, 1)
+            val periods = FakePeriodRepository(
+                listOf(
+                    PeriodRecord(
+                        id = 1,
+                        startDateEpochDay = start.toEpochDay(),
+                        endDateEpochDay = LocalDate.of(2026, 8, 5).toEpochDay(),
+                        createdAt = 0,
+                        updatedAt = 0
+                    )
+                )
+            )
+            val viewModel = HomeViewModel(
+                periodRepository = periods,
+                settingsRepository = FakeUserSettingsRepository(),
+                todayProvider = { today }
+            )
+
+            advanceUntilIdle()
+
+            assertEquals(
+                CyclePhase.FOLLICULAR,
+                viewModel.uiState.value.cyclePhaseDates.phaseOn(LocalDate.of(2026, 8, 6))
+            )
+            assertEquals(
+                CyclePhase.OVULATION,
+                viewModel.uiState.value.cyclePhaseDates.phaseOn(LocalDate.of(2026, 8, 15))
+            )
+            assertEquals(
+                CyclePhase.LUTEAL,
+                viewModel.uiState.value.cyclePhaseDates.phaseOn(LocalDate.of(2026, 8, 16))
+            )
         }
 }

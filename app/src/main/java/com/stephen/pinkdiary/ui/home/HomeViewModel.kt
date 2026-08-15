@@ -40,6 +40,7 @@ class HomeViewModel(
                         solidPeriodDates = CalendarMarks.solidPeriodDates(records),
                         softPeriodDates = CalendarMarks.softPeriodDates(records, today),
                         predictedDates = CalendarMarks.predictedPeriodDates(prediction),
+                        cyclePhaseDates = CalendarMarks.cyclePhaseDates(records, prediction, today),
                         prediction = prediction,
                         selectedRecord = current.selectedDate?.let { selected ->
                             PeriodLogic.coveringRecord(records, selected, today)

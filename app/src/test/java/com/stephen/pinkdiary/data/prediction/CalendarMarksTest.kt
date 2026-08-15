@@ -96,4 +96,107 @@ class CalendarMarksTest {
     fun `null prediction yields empty set`() {
         assertTrue(CalendarMarks.predictedPeriodDates(null).isEmpty())
     }
+
+    @Test
+    fun `cycle phases are estimated from completed period to next predicted period`() {
+        val prediction = CyclePrediction(
+            predictedStart = LocalDate.of(2026, 7, 29),
+            predictedEnd = LocalDate.of(2026, 8, 2),
+            durationDays = 5,
+            averageCycleLength = 28,
+            averagePeriodLength = 5,
+            cycleDay = 1,
+            daysUntilNext = 0
+        )
+
+        val phases = CalendarMarks.cyclePhaseDates(
+            records = listOf(record(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 5))),
+            prediction = prediction,
+            today = LocalDate.of(2026, 7, 10)
+        )
+
+        assertEquals((6..14).map { LocalDate.of(2026, 7, it) }.toSet(), phases.follicular)
+        assertEquals(setOf(LocalDate.of(2026, 7, 15)), phases.ovulation)
+        assertEquals((16..28).map { LocalDate.of(2026, 7, it) }.toSet(), phases.luteal)
+    }
+
+    @Test
+    fun `historical cycle uses next recorded start for phase boundary`() {
+        val prediction = CyclePrediction(
+            predictedStart = LocalDate.of(2026, 8, 27),
+            predictedEnd = LocalDate.of(2026, 8, 31),
+            durationDays = 5,
+            averageCycleLength = 28,
+            averagePeriodLength = 5,
+            cycleDay = 1,
+            daysUntilNext = 0
+        )
+
+        val phases = CalendarMarks.cyclePhaseDates(
+            records = listOf(
+                record(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 5)),
+                record(LocalDate.of(2026, 7, 30), LocalDate.of(2026, 8, 3))
+            ),
+            prediction = prediction,
+            today = LocalDate.of(2026, 8, 10)
+        )
+
+        assertEquals(CyclePhase.OVULATION, phases.phaseOn(LocalDate.of(2026, 7, 16)))
+        assertEquals(CyclePhase.LUTEAL, phases.phaseOn(LocalDate.of(2026, 7, 29)))
+        assertEquals(null, phases.phaseOn(LocalDate.of(2026, 7, 30)))
+    }
+
+    @Test
+    fun `ongoing period does not overlap estimated phase marks`() {
+        val prediction = CyclePrediction(
+            predictedStart = LocalDate.of(2026, 8, 29),
+            predictedEnd = LocalDate.of(2026, 9, 2),
+            durationDays = 5,
+            averageCycleLength = 28,
+            averagePeriodLength = 5,
+            cycleDay = 3,
+            daysUntilNext = 26,
+            ongoingPeriodStart = LocalDate.of(2026, 8, 1),
+            periodDay = 3
+        )
+
+        val phases = CalendarMarks.cyclePhaseDates(
+            records = listOf(record(LocalDate.of(2026, 8, 1))),
+            prediction = prediction,
+            today = LocalDate.of(2026, 8, 3)
+        )
+
+        assertEquals(null, phases.phaseOn(LocalDate.of(2026, 8, 5)))
+        assertEquals(CyclePhase.FOLLICULAR, phases.phaseOn(LocalDate.of(2026, 8, 6)))
+        assertEquals(CyclePhase.OVULATION, phases.phaseOn(LocalDate.of(2026, 8, 15)))
+    }
+
+    @Test
+    fun `null prediction yields no cycle phase marks`() {
+        assertEquals(CyclePhaseDates(), CalendarMarks.cyclePhaseDates(emptyList(), null, LocalDate.of(2026, 8, 1)))
+    }
+
+    @Test
+    fun `invalid historical cycle gap yields no phase marks`() {
+        val prediction = CyclePrediction(
+            predictedStart = LocalDate.of(2026, 5, 29),
+            predictedEnd = LocalDate.of(2026, 6, 2),
+            durationDays = 5,
+            averageCycleLength = 28,
+            averagePeriodLength = 5,
+            cycleDay = 1,
+            daysUntilNext = 0
+        )
+        val phases = CalendarMarks.cyclePhaseDates(
+            records = listOf(
+                record(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 5)),
+                record(LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 5))
+            ),
+            prediction = prediction,
+            today = LocalDate.of(2026, 5, 10)
+        )
+
+        assertEquals(null, phases.phaseOn(LocalDate.of(2026, 2, 1)))
+        assertEquals(CyclePhase.FOLLICULAR, phases.phaseOn(LocalDate.of(2026, 5, 6)))
+    }
 }

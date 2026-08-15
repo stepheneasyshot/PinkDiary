@@ -103,9 +103,26 @@ data class UserSettings(
 
 | 函数 | 结果集合 | 含义 |
 |------|----------|------|
-| `solidPeriodDates(records)` | 已结束记录 `start..end`（含首尾）+ 进行中记录的 `start` 日 | **实心**标记（确认的经期 + 进行中的开始日）|
+| `solidPeriodDates(records)` | 已结束记录 `start..end`（含首尾）+ 进行中记录的 `start` 日 | **高对比实心小圆**（确认的经期 + 进行中的开始日）|
 | `softPeriodDates(records, today)` | 进行中记录 `start+1 .. today` | **温和**标记（进行中、尚未结束）|
-| `predictedPeriodDates(prediction)` | `predictedStart .. predictedEnd`（含首尾）| **预测**标记（空心描边）|
+| `predictedPeriodDates(prediction)` | `predictedStart .. predictedEnd`（含首尾）| **预测**标记（浅粉小圆 + 细描边）|
+| `cyclePhaseDates(records, prediction, today)` | 卵泡期 / 预测排卵日 / 黄体期集合 | **估算**周期阶段（低对比辅助标记） |
+
+### 5.1 周期阶段估算
+
+- 每个周期以一次经期开始日为起点，以下一次经期开始日为边界；历史周期使用真实记录，当前周期使用 `predictedStart`。与预测规则一致，仅对 15–60 天的有效周期生成阶段标记，过长间隔不做医学含义推断。
+- 预测排卵日：`下次经期开始日 - 14 天`。这是日历估算值，不是排卵检测结果。
+- 卵泡期标记：为避免覆盖更重要的经期标记，UI 只标记「出血结束次日 .. 预测排卵日前一日」。生理学上卵泡期从周期第 1 天开始，与月经期存在重叠；这里只是视觉分层。
+- 黄体期标记：`预测排卵日 + 1 .. 下次经期开始日 - 1`。
+- 未标记结束的进行中经期，按 `max(今天, 开始日 + 平均经期长度 - 1)` 作为视觉上的经期结束边界，避免阶段标记覆盖已确认的进行中日期。
+- 排卵时间会在个体间及同一个体的不同周期波动；日历阶段不得作为避孕、诊断或确认排卵的依据。
+
+**科学依据（复核：2026-08-15）**：
+
+- [ACOG：排卵通常约在下次经期前 14 天，无法仅靠日历精确确定](https://www.acog.org/womens-health/experts-and-stories/the-latest/trying-to-get-pregnant-heres-when-to-have-sex)
+- [NHS：多数人排卵约在下次经期前 10–16 天](https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/)
+- [NICHD：周期、卵泡发育、排卵与子宫内膜变化](https://www.nichd.nih.gov/health/topics/menstruation/conditioninfo)
+- [CDC：即使周期规律，易孕窗时间仍可显著波动](https://www.cdc.gov/contraception/hcp/usspr/standard-days-method.html)
 
 ## 6. 记录查询（`PeriodLogic`，纯函数）
 
@@ -114,16 +131,14 @@ data class UserSettings(
 
 ## 7. 视觉呈现规则（`ui/calendar/`）
 
-- 标记采用**连通的圆角矩形**（`MarkCornerRadius = 14.dp`），不再是独立圆形。
-- 圆角判定：
-  - 范围「首/尾」侧圆角；中间直角相连。
-  - 额外在**行首（周一）加左圆角、行尾（周日）加右圆角**，避免直角顶到网格边缘。
-  - 进行中经期的「实心开始日 ↔ 温和后续日」**跨类型连通**（开始日右侧、后续日左侧不圆角）。
-- 预测经期用**仅外轮廓**描边（顶/底边 + 首尾侧边与圆角），中间相邻天不画左右竖线。
+- 所有日期状态都采用**独立的 28.dp 小圆形**标记，不再将连续日期连成色带。
+- 已记录经期使用高对比莓红实心圆；进行中的后续日使用浅藕粉实心圆。
+- 预测经期使用浅藕粉半透明底色 + 1.5.dp 细描边，在保持独立圆形的同时与已记录经期区分。
 - 颜色采用同一套莓红/藕粉色阶，并提供深色模式变体：
   - 实心经期：莓红实心 + 白字，突出已确认记录。
   - 温和/待选：浅藕粉实心 + 深莓红字，与已确认记录保持关联但降低强调。
   - 预测经期：藕粉描边 + 深色数字，不再使用低对比度浅粉字。
+  - 卵泡期 / 预测排卵日 / 黄体期：日期数字后的小面积、低饱和浅色圆形，对比度低于已记录与预测经期。
   - 选中日期：浅玫瑰色圆角矩形描边，日期文字保留其原本状态色，不遮盖经期信息。
 - 日历背景统一为极浅粉白，不再随月份轮换颜色，避免蓝、橙等大面积底色干扰经期状态识别。
 
